@@ -2,6 +2,7 @@ import { div } from "organic-ui/components"
 import { Counter } from "../components/Counter.js"
 import { Accordion } from "../components/Accordion.js"
 import { TodoList } from "../components/TodoList.js"
+import { HtmlDemo } from "../components/HtmlDemo.js"
 
 export function Examples() {
   return div({
@@ -47,6 +48,19 @@ export function Examples() {
         title: "How does reactivity work?",
         content: () => "Uses signals pattern with getter/setter functions that track dependencies."
       }),
+      
+      div({
+        id: "html-demo",
+        text: "HTML Component Demo",
+        style: {
+          fontSize: "24px",
+          fontWeight: "600",
+          marginTop: "40px",
+          marginBottom: "15px",
+          color: "#2c3e50"
+        }
+      }),
+      HtmlDemo(),
       
       div({
         id: "todo-list",

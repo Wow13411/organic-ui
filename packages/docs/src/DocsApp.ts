@@ -273,6 +273,7 @@ export function DocsApp() {
                             createTocItem("For", "for", "components"),
                             createTocItem("Show", "show", "components"),
                             createTocItem("Switch", "switch", "components"),
+                            createTocItem("html", "html", "components"),
                             createTocItem("HTML Elements", "html-elements", "components")
                           ]
                         })
@@ -283,6 +284,7 @@ export function DocsApp() {
                           children: [
                             createTocItem("Counter", "counter", "examples"),
                             createTocItem("Accordion", "accordion", "examples"),
+                            createTocItem("HTML Component Demo", "html-demo", "examples"),
                             createTocItem("Todo List", "todo-list", "examples")
                           ]
                         })

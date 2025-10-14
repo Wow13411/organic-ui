@@ -114,6 +114,43 @@ Switch({
         language: "typescript"
       }),
       div({
+        id: "html",
+        text: "html - Raw HTML Rendering",
+        style: {
+          fontSize: "24px",
+          fontWeight: "600",
+          marginTop: "30px",
+          marginBottom: "15px",
+          color: "#2c3e50"
+        }
+      }),
+      p({
+        text: () => "Render raw HTML content using tagged template literals. Supports both static and dynamic (reactive) content.",
+        style: { marginBottom: "15px", lineHeight: "1.6" }
+      }),
+      CodeViewer({
+        code: `// Static HTML
+html\`<p>This is <strong>raw</strong> HTML content</p>\`
+
+// Dynamic HTML with reactive state
+const [name, setName] = state("Alice")
+html\`<p>Hello <strong>\${name}</strong>!</p>\`
+
+// Complex HTML with multiple dynamic values
+const [count, setCount] = state(0)
+html\`
+  <div class="counter">
+    <h2>Count: \${count}</h2>
+    <p>Double: \${() => count() * 2}</p>
+  </div>
+\``,
+        language: "typescript"
+      }),
+      p({
+        text: () => "⚠️ Note: Be careful with user-generated content to avoid XSS vulnerabilities. Always sanitize untrusted input.",
+        style: { marginTop: "15px", marginBottom: "15px", lineHeight: "1.6", color: "#856404", background: "#fff3cd", padding: "10px", borderRadius: "4px" }
+      }),
+      div({
         id: "html-elements",
         text: "HTML Elements",
         style: {
