@@ -274,7 +274,8 @@ export function DocsApp() {
                             createTocItem("Show", "show", "components"),
                             createTocItem("Switch", "switch", "components"),
                             createTocItem("html", "html", "components"),
-                            createTocItem("HTML Elements", "html-elements", "components")
+                            createTocItem("HTML Elements", "html-elements", "components"),
+                            createTocItem("ref", "ref", "components")
                           ]
                         })
                       },

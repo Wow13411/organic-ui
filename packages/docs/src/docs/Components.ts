@@ -183,6 +183,62 @@ a({
   }
 })`,
         language: "typescript"
+      }),
+      div({
+        id: "ref",
+        text: "ref - DOM Element Access",
+        style: {
+          fontSize: "24px",
+          fontWeight: "600",
+          marginTop: "30px",
+          marginBottom: "15px",
+          color: "#2c3e50"
+        }
+      }),
+      p({
+        text: () => "Access the underlying DOM element after it's mounted. The ref callback receives the element and can optionally return a cleanup function.",
+        style: { marginBottom: "15px", lineHeight: "1.6" }
+      }),
+      CodeViewer({
+        code: `// Basic usage - access element after mount
+div({
+  text: "Hello",
+  ref: (el) => {
+    console.log("Element mounted:", el)
+    el.focus()
+  }
+})
+
+// With cleanup - return a function to run on unmount
+div({
+  text: "Animated",
+  ref: (el) => {
+    // Setup: add animation
+    const animation = el.animate([
+      { opacity: 0 },
+      { opacity: 1 }
+    ], { duration: 500 })
+    
+    // Cleanup: cancel animation on unmount
+    return () => {
+      animation.cancel()
+    }
+  }
+})
+
+// Real-world example: syntax highlighting
+div({
+  text: code,
+  ref: (el) => {
+    const cleanup = applySyntaxHighlighting(el, code)
+    return cleanup
+  }
+})`,
+        language: "typescript"
+      }),
+      p({
+        text: () => "The ref callback is called after the element is added to the DOM, ensuring you can safely interact with it. The cleanup function (if returned) is called when the component unmounts.",
+        style: { marginTop: "15px", marginBottom: "15px", lineHeight: "1.6" }
       })
     ]
   })
