@@ -1,0 +1,8 @@
+{
+  "name": "@organic-ui/monorepo",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter demo dev",
+    "build": "pnpm --filter organic-ui build"
+  }
+}

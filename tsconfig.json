@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "outDir": "dist",
+        "rootDir": ".",
+        "sourceMap": true,
+        "strict": true,
+        "target": "ESNext",
+        "module": "nodenext",
+        "moduleResolution": "nodenext",
+        "lib": ["ESNext", "DOM"],
+        "allowJs": true,
+        "allowSyntheticDefaultImports": true,
+
+        "baseUrl": ".",
+        "paths": {
+            "@/*": ["*"]
+        }
+    }
+}

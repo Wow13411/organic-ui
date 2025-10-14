@@ -1,0 +1,20 @@
+{
+  "name": "organic-ui",
+  "version": "1.0.0",
+  "description": "A lightweight reactive UI framework",
+  "type": "module",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js",
+    "./types": "./types.js",
+    "./reactivity": "./reactivity.js",
+    "./renderer": "./renderer.js",
+    "./components": "./components/index.js"
+  },
+  "scripts": {
+    "build": "echo 'No build needed - using source files directly'"
+  },
+  "keywords": ["ui", "reactive", "framework"],
+  "author": "pavi2410",
+  "license": "MIT"
+}
