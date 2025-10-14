@@ -1,1 +1,8 @@
-/* Syntax highlighting styles are injected dynamically by CodeViewer component */
+html, body {
+  margin: 0;
+}
+
+* {
+  box-sizing: border-box;
+  overscroll-behavior: none;
+}

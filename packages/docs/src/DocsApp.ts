@@ -82,7 +82,7 @@ export function DocsApp() {
   return div({
     style: {
       display: "flex",
-      minHeight: "100vh",
+      minHeight: "100dvh",
       fontFamily: "system-ui, -apple-system, sans-serif"
     },
     children: [
@@ -92,11 +92,13 @@ export function DocsApp() {
           width: "250px",
           background: "#f8f9fa",
           padding: "20px",
+          paddingRight: "0",
           borderRight: "1px solid #e0e0e0",
           position: "sticky",
           top: "0",
-          height: "100vh",
-          overflowY: "auto"
+          height: "100dvh",
+          display: "flex",
+          flexDirection: "column"
         },
         children: [
           div({
@@ -108,28 +110,84 @@ export function DocsApp() {
               color: "#2c3e50"
             }
           }),
-          ...sections.map(section =>
-            a({
-              href: `#${section.id}`,
-              text: section.label,
-              onClick: (e) => {
-                e.preventDefault()
-                setActiveSection(section.id)
-              },
-              style: () => ({
-                display: "block",
-                width: "100%",
-                padding: "10px 15px",
-                marginBottom: "5px",
-                background: activeSection() === section.id ? "#007bff" : "transparent",
-                color: activeSection() === section.id ? "white" : "#333",
-                textDecoration: "none",
-                borderRadius: "4px",
-                fontSize: "14px",
-                fontWeight: activeSection() === section.id ? "600" : "normal"
+          // Navigation items in scrollable container
+          div({
+            style: {
+              flex: "1",
+              overflowY: "auto",
+              minHeight: "0"
+            },
+            children: sections.map(section =>
+              a({
+                href: `#${section.id}`,
+                text: section.label,
+                onClick: (e) => {
+                  e.preventDefault()
+                  setActiveSection(section.id)
+                },
+                style: () => ({
+                  display: "block",
+                  width: "100%",
+                  padding: "10px 15px",
+                  marginBottom: "5px",
+                  background: activeSection() === section.id ? "#007bff" : "transparent",
+                  color: activeSection() === section.id ? "white" : "#333",
+                  textDecoration: "none",
+                  borderRadius: "4px",
+                  fontSize: "14px",
+                  fontWeight: activeSection() === section.id ? "600" : "normal",
+                  borderTopRightRadius: "0",
+                  borderBottomRightRadius: "0",
+                })
               })
-            })
-          )
+            )
+          }),
+          // Links section at bottom
+          div({
+            style: {
+              flexShrink: "0",
+              paddingTop: "20px",
+              borderTop: "1px solid #e0e0e0"
+            },
+            children: [
+              div({
+                text: "Links",
+                style: {
+                  fontSize: "12px",
+                  fontWeight: "600",
+                  marginBottom: "10px",
+                  color: "#666",
+                  textTransform: "uppercase"
+                }
+              }),
+              a({
+                href: "https://github.com/pavi2410/organic-ui",
+                text: "GitHub",
+                target: "_blank",
+                rel: "noopener noreferrer",
+                style: {
+                  display: "block",
+                  padding: "8px 0",
+                  color: "#333",
+                  textDecoration: "none",
+                  fontSize: "14px"
+                }
+              }),
+              a({
+                href: "https://www.npmjs.com/package/organic-ui",
+                text: "npm",
+                target: "_blank",
+                rel: "noopener noreferrer",
+                style: {
+                  display: "block",
+                  padding: "8px 0",
+                  color: "#333",
+                  textDecoration: "none",
+                  fontSize: "14px"
+                }
+              })
+            ]
+          })
         ]
       }),
       // Main content area with TOC
@@ -138,7 +196,7 @@ export function DocsApp() {
           flex: "1",
           display: "flex",
           gap: "40px",
-          padding: "40px"
+          padding: "40px",
         },
         children: [
           // Content
