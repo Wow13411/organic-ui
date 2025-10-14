@@ -1,5 +1,5 @@
 import { state } from "organic-ui/reactivity"
-import { div, p } from "organic-ui/components"
+import { div, p, Show } from "organic-ui/components"
 
 export function Accordion({ title, content }: { title: string; content: () => string }) {
   const [open, setOpen] = state(false)
@@ -21,8 +21,15 @@ export function Accordion({ title, content }: { title: string; content: () => st
         },
         onClick: () => setOpen(!open())
       }),
-      p({
-        text: () => open() ? content() : ""
+      Show({
+        when: open,
+        children: p({
+          text: content,
+          style: {
+            padding: "8px",
+            margin: "0"
+          }
+        })
       })
     ]
   })
