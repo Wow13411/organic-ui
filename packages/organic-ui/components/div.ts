@@ -6,9 +6,10 @@ interface DivProps {
   className?: string
   text?: string
   onClick?: () => void
+  id?: string
 }
 
-export function div({ children = [], style, className, text, onClick }: DivProps) {
+export function div({ children = [], style, className, text, onClick, id }: DivProps) {
   let el: HTMLDivElement
 
   return {
@@ -24,6 +25,9 @@ export function div({ children = [], style, className, text, onClick }: DivProps
 
       // Add click handler if provided
       if (onClick) el.onclick = onClick
+
+      // Set id if provided
+      if (id) el.id = id
 
       // Mount child components
       for (const child of children) {

@@ -15,6 +15,7 @@ export function Components() {
         }
       }),
       div({
+        id: "for",
         text: "For - List Rendering",
         style: {
           fontSize: "24px",
@@ -40,6 +41,7 @@ For({
         language: "typescript"
       }),
       div({
+        id: "show",
         text: "Show - Conditional Rendering",
         style: {
           fontSize: "24px",
@@ -64,6 +66,7 @@ Show({
         language: "typescript"
       }),
       div({
+        id: "html-elements",
         text: "HTML Elements",
         style: {
           fontSize: "24px",

@@ -15,6 +15,7 @@ export function GettingStarted() {
         }
       }),
       div({
+        id: "installation",
         text: "Installation",
         style: {
           fontSize: "24px",
@@ -24,8 +25,9 @@ export function GettingStarted() {
           color: "#2c3e50"
         }
       }),
-      CodeViewer({ code: "pnpm install" }),
+      CodeViewer({ code: "pnpm install organic-ui" }),
       div({
+        id: "quick-example",
         text: "Quick Example",
         style: {
           fontSize: "24px",

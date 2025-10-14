@@ -15,6 +15,7 @@ export function Reactivity() {
         }
       }),
       div({
+        id: "state",
         text: "state()",
         style: {
           fontSize: "24px",
@@ -39,6 +40,7 @@ setCount(count() + 1)`,
         language: "typescript"
       }),
       div({
+        id: "effect",
         text: "effect()",
         style: {
           fontSize: "24px",

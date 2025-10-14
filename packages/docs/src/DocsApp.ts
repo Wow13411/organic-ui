@@ -1,4 +1,4 @@
-import { state } from "organic-ui/reactivity"
+import { state, effect } from "organic-ui/reactivity"
 import { div, button, Show } from "organic-ui/components"
 import { Introduction } from "./docs/Introduction.js"
 import { GettingStarted } from "./docs/GettingStarted.js"
@@ -8,8 +8,42 @@ import { Examples } from "./docs/Examples.js"
 
 type Section = "intro" | "getting-started" | "reactivity" | "components" | "examples"
 
+function getSectionFromHash(): Section {
+  const hash = window.location.hash.slice(1) // Remove the '#'
+  // Extract section from hash (e.g., "reactivity/state" -> "reactivity")
+  const section = hash.split('/')[0]
+  const validSections: Section[] = ["intro", "getting-started", "reactivity", "components", "examples"]
+  return validSections.includes(section as Section) ? (section as Section) : "intro"
+}
+
+function scrollToSubsection() {
+  const hash = window.location.hash.slice(1)
+  const parts = hash.split('/')
+  if (parts.length > 1) {
+    const subsectionId = parts[1]
+    // Wait for the DOM to update before scrolling
+    setTimeout(() => {
+      const element = document.getElementById(subsectionId)
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }, 100)
+  }
+}
+
+function createTocItem(text: string, id: string, section: Section) {
+  return div({ 
+    text, 
+    style: { marginBottom: "8px", color: "#666", cursor: "pointer" },
+    onClick: () => {
+      window.location.hash = `${section}/${id}`
+      scrollToSubsection()
+    }
+  })
+}
+
 export function DocsApp() {
-  const [activeSection, setActiveSection] = state<Section>("intro")
+  const [activeSection, setActiveSection] = state<Section>(getSectionFromHash())
 
   const sections: { id: Section; label: string; component: () => any }[] = [
     { id: "intro", label: "Introduction", component: Introduction },
@@ -18,6 +52,24 @@ export function DocsApp() {
     { id: "components", label: "Components", component: Components },
     { id: "examples", label: "Examples", component: Examples }
   ]
+
+  // Update URL when activeSection changes (only if not already set)
+  effect(() => {
+    const currentHash = window.location.hash.slice(1)
+    const currentSection = currentHash.split('/')[0]
+    if (currentSection !== activeSection()) {
+      window.history.pushState(null, "", `#${activeSection()}`)
+    }
+  })
+
+  // Listen to browser back/forward navigation
+  window.addEventListener("hashchange", () => {
+    setActiveSection(getSectionFromHash())
+    scrollToSubsection()
+  })
+
+  // Scroll to subsection on initial load
+  scrollToSubsection()
 
   return div({
     style: {
@@ -120,8 +172,8 @@ export function DocsApp() {
                     when: () => activeSection() === "intro",
                     children: div({
                       children: [
-                        div({ text: "Features", style: { marginBottom: "8px", color: "#666", cursor: "pointer" } }),
-                        div({ text: "Philosophy", style: { marginBottom: "8px", color: "#666", cursor: "pointer" } })
+                        createTocItem("Features", "features", "intro"),
+                        createTocItem("Philosophy", "philosophy", "intro")
                       ]
                     })
                   }),
@@ -129,8 +181,8 @@ export function DocsApp() {
                     when: () => activeSection() === "getting-started",
                     children: div({
                       children: [
-                        div({ text: "Installation", style: { marginBottom: "8px", color: "#666", cursor: "pointer" } }),
-                        div({ text: "Quick Example", style: { marginBottom: "8px", color: "#666", cursor: "pointer" } })
+                        createTocItem("Installation", "installation", "getting-started"),
+                        createTocItem("Quick Example", "quick-example", "getting-started")
                       ]
                     })
                   }),
@@ -138,8 +190,8 @@ export function DocsApp() {
                     when: () => activeSection() === "reactivity",
                     children: div({
                       children: [
-                        div({ text: "state()", style: { marginBottom: "8px", color: "#666", cursor: "pointer" } }),
-                        div({ text: "effect()", style: { marginBottom: "8px", color: "#666", cursor: "pointer" } })
+                        createTocItem("state()", "state", "reactivity"),
+                        createTocItem("effect()", "effect", "reactivity")
                       ]
                     })
                   }),
@@ -147,9 +199,9 @@ export function DocsApp() {
                     when: () => activeSection() === "components",
                     children: div({
                       children: [
-                        div({ text: "For", style: { marginBottom: "8px", color: "#666", cursor: "pointer" } }),
-                        div({ text: "Show", style: { marginBottom: "8px", color: "#666", cursor: "pointer" } }),
-                        div({ text: "HTML Elements", style: { marginBottom: "8px", color: "#666", cursor: "pointer" } })
+                        createTocItem("For", "for", "components"),
+                        createTocItem("Show", "show", "components"),
+                        createTocItem("HTML Elements", "html-elements", "components")
                       ]
                     })
                   }),
@@ -157,9 +209,9 @@ export function DocsApp() {
                     when: () => activeSection() === "examples",
                     children: div({
                       children: [
-                        div({ text: "Counter", style: { marginBottom: "8px", color: "#666", cursor: "pointer" } }),
-                        div({ text: "Accordion", style: { marginBottom: "8px", color: "#666", cursor: "pointer" } }),
-                        div({ text: "Todo List", style: { marginBottom: "8px", color: "#666", cursor: "pointer" } })
+                        createTocItem("Counter", "counter", "examples"),
+                        createTocItem("Accordion", "accordion", "examples"),
+                        createTocItem("Todo List", "todo-list", "examples")
                       ]
                     })
                   })

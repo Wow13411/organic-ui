@@ -17,6 +17,7 @@ export function Examples() {
       }),
       
       div({
+        id: "counter",
         text: "Counter",
         style: {
           fontSize: "24px",
@@ -28,6 +29,7 @@ export function Examples() {
       Counter({ label: "Clicks" }),
       
       div({
+        id: "accordion",
         text: "Accordion",
         style: {
           fontSize: "24px",
@@ -47,6 +49,7 @@ export function Examples() {
       }),
       
       div({
+        id: "todo-list",
         text: "Todo List",
         style: {
           fontSize: "24px",

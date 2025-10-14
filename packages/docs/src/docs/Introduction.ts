@@ -22,6 +22,7 @@ export function Introduction() {
         }
       }),
       div({
+        id: "features",
         text: "Features",
         style: {
           fontSize: "24px",
@@ -55,6 +56,7 @@ export function Introduction() {
         ]
       }),
       div({
+        id: "philosophy",
         text: "Philosophy",
         style: {
           fontSize: "24px",
