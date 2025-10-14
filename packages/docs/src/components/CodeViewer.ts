@@ -1,4 +1,5 @@
 import { div } from "organic-ui/components"
+import { CopyButton } from "./CopyButton.js"
 
 interface CodeViewerProps {
   code: string
@@ -247,17 +248,20 @@ function HighlightedCode(code: string, language: string) {
 export function CodeViewer({ code, language = "plaintext" }: CodeViewerProps) {
   return div({
     style: {
+      position: "relative",
       background: "#f5f5f5",
       padding: "15px",
       borderRadius: "4px",
       fontFamily: "monospace",
       fontSize: "14px",
       overflowX: "auto",
-      marginBottom: "20px",
       border: "1px solid #e0e0e0",
       whiteSpace: "pre",
       lineHeight: "1.5"
     },
-    children: [HighlightedCode(code, language)]
+    children: [
+      HighlightedCode(code, language),
+      CopyButton(code)
+    ]
   })
 }
