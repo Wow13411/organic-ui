@@ -7,10 +7,12 @@ interface DivProps {
   text?: string
   onClick?: () => void
   id?: string
+  ref?: (el: HTMLDivElement) => void | (() => void)
 }
 
-export function div({ children = [], style, className, text, onClick, id }: DivProps) {
+export function div({ children = [], style, className, text, onClick, id, ref }: DivProps) {
   let el: HTMLDivElement
+  let cleanup: (() => void) | void
 
   return {
     mount(parent: HTMLElement) {
@@ -35,8 +37,13 @@ export function div({ children = [], style, className, text, onClick, id }: DivP
       }
 
       parent.appendChild(el)
+
+      // Call ref callback after mounting
+      if (ref) cleanup = ref(el)
     },
     unmount() {
+      // Call cleanup if provided
+      if (cleanup) cleanup()
       for (const child of children) child.unmount?.()
       el.remove()
     }

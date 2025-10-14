@@ -28,3 +28,29 @@ html, body {
   transform: translateY(-1px);
   box-shadow: 0 4px 6px rgba(0,0,0,0.15);
 }
+
+::highlight(keyword) {
+  color: #0000ff;
+  font-weight: 600;
+}
+
+::highlight(string) {
+  color: #a31515;
+}
+
+::highlight(number) {
+  color: #098658;
+}
+
+::highlight(comment) {
+  color: #008000;
+  font-style: italic;
+}
+
+::highlight(operator) {
+  color: #000000;
+}
+
+::highlight(identifier) {
+  color: #001080;
+}

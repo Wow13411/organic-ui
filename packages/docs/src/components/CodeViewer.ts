@@ -142,107 +142,73 @@ function lexTypeScript(code: string): Token[] {
 }
 
 // Apply CSS Custom Highlight API
-let styleElement: HTMLStyleElement | null = null
-
-function ensureHighlightStyles() {
-  if (styleElement) return
-
-  styleElement = document.createElement('style')
-  styleElement.textContent = `
-    ::highlight(keyword) { color: #0000ff; font-weight: 600; }
-    ::highlight(string) { color: #a31515; }
-    ::highlight(number) { color: #098658; }
-    ::highlight(comment) { color: #008000; font-style: italic; }
-    ::highlight(operator) { color: #000000; }
-    ::highlight(identifier) { color: #001080; }
-  `
-  document.head.appendChild(styleElement)
-}
-
-function applyHighlighting(element: HTMLElement, code: string): Map<string, Highlight> {
+function applyHighlighting(element: HTMLElement, code: string): () => void {
   if (!CSS.highlights) {
     console.warn('CSS Custom Highlight API not supported')
-    return new Map()
+    return () => {}
   }
 
-  ensureHighlightStyles()
+  const textNode = element.firstChild
+  if (!textNode || textNode.nodeType !== Node.TEXT_NODE) {
+    return () => {}
+  }
 
   const tokens = lexTypeScript(code)
-  const highlights = new Map<string, Highlight>()
-
-  // Group tokens by type
-  const highlightsByType = new Map<typeof TokenType[keyof typeof TokenType], Range[]>()
-
-  tokens.forEach(token => {
-    if (!highlightsByType.has(token.type)) {
-      highlightsByType.set(token.type, [])
-    }
-
+  
+  // Create ranges for each token
+  const tokenRanges = tokens.map(token => {
     const range = new Range()
-    const textNode = element.firstChild
-    if (textNode && textNode.nodeType === Node.TEXT_NODE) {
-      range.setStart(textNode, token.start)
-      range.setEnd(textNode, token.end)
-      highlightsByType.get(token.type)!.push(range)
-    }
+    range.setStart(textNode, token.start)
+    range.setEnd(textNode, token.end)
+    return { type: token.type, range }
   })
+  
+  // Group ranges by token type
+  const highlightsByType = Map.groupBy(tokenRanges, (item: { type: string; range: Range }) => item.type)
 
   // Create highlights and add to global registry
-  highlightsByType.forEach((ranges, type) => {
+  const createdHighlights = new Map<string, Highlight>()
+  
+  for (const [type, items] of highlightsByType) {
+    const ranges = items.map((item: { type: string; range: Range }) => item.range)
     const highlight = new Highlight(...ranges)
-    highlights.set(type, highlight)
+    createdHighlights.set(type, highlight)
     
-    // Get existing highlight or create new one
     const existing = CSS.highlights.get(type)
     if (existing) {
-      // Add our ranges to existing highlight
       ranges.forEach(range => existing.add(range))
     } else {
       CSS.highlights.set(type, highlight)
     }
-  })
+  }
 
-  return highlights
-}
-
-// Custom renderable for highlighted code
-function HighlightedCode(code: string, language: string) {
-  let el: HTMLDivElement
-  let highlights: Map<string, Highlight> = new Map()
-
-  return {
-    mount(parent: HTMLElement) {
-      el = document.createElement("div")
-      el.textContent = code
-      el.style.color = "#2c3e50"
-      
-      parent.appendChild(el)
-      
-      // Apply highlighting after mounting
-      if (language === "typescript"
-        || language === "javascript"
-        || language === "ts"
-        || language === "js"
-      ) {
-        highlights = applyHighlighting(el, code)
-      }
-    },
-    unmount() {
-      // Clean up highlights by removing our ranges
-      highlights.forEach((highlight, type) => {
-        const globalHighlight = CSS.highlights?.get(type)
-        if (globalHighlight) {
-          // Remove all our ranges from the global highlight
-          highlight.forEach(range => globalHighlight.delete(range))
-          // If empty, remove the highlight entirely
-          if (globalHighlight.size === 0) {
-            CSS.highlights?.delete(type)
-          }
+  // Return cleanup function
+  return () => {
+    for (const [type, highlight] of createdHighlights) {
+      const globalHighlight = CSS.highlights.get(type)
+      if (globalHighlight) {
+        highlight.forEach(range => globalHighlight.delete(range))
+        if (globalHighlight.size === 0) {
+          CSS.highlights.delete(type)
         }
-      })
-      el.remove()
+      }
     }
   }
+}
+
+// Highlighted code component using ref pattern
+function HighlightedCode(code: string, language: string) {
+  return div({
+    text: code,
+    style: { color: "#2c3e50" },
+    ref: (el: HTMLDivElement) => {
+      // Apply highlighting after mount and return cleanup
+      if (language === "typescript" || language === "javascript" || 
+          language === "ts" || language === "js") {
+        return applyHighlighting(el, code)
+      }
+    }
+  })
 }
 
 export function CodeViewer({ code, language = "plaintext" }: CodeViewerProps) {
