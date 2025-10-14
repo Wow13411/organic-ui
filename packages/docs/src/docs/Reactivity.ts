@@ -35,8 +35,11 @@ export function Reactivity() {
 // Read value
 console.log(count())  // 0
 
-// Update value
-setCount(count() + 1)`,
+// Update with new value
+setCount(count() + 1)
+
+// Update with function (receives current value)
+setCount(prev => prev + 1)`,
         language: "typescript"
       }),
       div({
@@ -62,6 +65,26 @@ effect(() => {
 })
 
 setName("organic-ui")  // Logs: "Hello, organic-ui!"`,
+        language: "typescript"
+      }),
+      p({
+        text: () => "Effects can return a cleanup function that runs before the effect re-runs or when disposed:",
+        style: { marginTop: "15px", marginBottom: "15px", lineHeight: "1.6" }
+      }),
+      CodeViewer({
+        code: `const [delay, setDelay] = state(1000)
+
+const dispose = effect(() => {
+  const id = setInterval(() => {
+    console.log("tick")
+  }, delay())
+  
+  // Cleanup: runs when delay changes or dispose() is called
+  return () => clearInterval(id)
+})
+
+// Later: stop the effect and run cleanup
+dispose()`,
         language: "typescript"
       })
     ]

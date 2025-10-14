@@ -1,4 +1,6 @@
 type Fn = () => void
+type CleanupFn = () => void
+type EffectFn = () => void | CleanupFn
 
 let currentEffect: Fn | null = null
 
@@ -11,7 +13,8 @@ export function state<T>(initial: T) {
     return value
   }
 
-  function set(next: T) {
+  function set(nextOrFn: T | ((prev: T) => T)) {
+    const next = typeof nextOrFn === "function" ? (nextOrFn as (prev: T) => T)(value) : nextOrFn
     if (next !== value) {
       value = next
       for (const fn of subs) fn()
@@ -22,11 +25,21 @@ export function state<T>(initial: T) {
 }
 
 // run a reactive effect
-export function effect(fn: Fn) {
+export function effect(fn: EffectFn) {
+  let cleanup: CleanupFn | void
+  
   const run = () => {
+    // Run cleanup from previous execution
+    if (cleanup) cleanup()
+    
     currentEffect = run
-    fn()
+    cleanup = fn()
     currentEffect = null
   }
   run()
+  
+  // Return a dispose function to stop the effect and run cleanup
+  return () => {
+    if (cleanup) cleanup()
+  }
 }

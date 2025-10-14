@@ -306,7 +306,8 @@ export function DocsApp() {
                             createTocItem("Counter", "counter", "examples"),
                             createTocItem("Accordion", "accordion", "examples"),
                             createTocItem("HTML Component Demo", "html-demo", "examples"),
-                            createTocItem("Todo List", "todo-list", "examples")
+                            createTocItem("Todo List", "todo-list", "examples"),
+                            createTocItem("Metronome", "metronome", "examples")
                           ]
                         })
                       }
