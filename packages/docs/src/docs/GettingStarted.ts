@@ -55,7 +55,8 @@ function Counter({ label }) {
 }
 
 const root = document.getElementById("app")!
-render(() => [Counter({ label: "Clicks" })], root)` 
+render(() => [Counter({ label: "Clicks" })], root)`,
+        language: "typescript"
       })
     ]
   })

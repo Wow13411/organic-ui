@@ -35,7 +35,8 @@ export function Reactivity() {
 console.log(count())  // 0
 
 // Update value
-setCount(count() + 1)`
+setCount(count() + 1)`,
+        language: "typescript"
       }),
       div({
         text: "effect()",
@@ -58,7 +59,8 @@ effect(() => {
   console.log(\`Hello, \${name()}!\`)
 })
 
-setName("organic-ui")  // Logs: "Hello, organic-ui!"`
+setName("organic-ui")  // Logs: "Hello, organic-ui!"`,
+        language: "typescript"
       })
     ]
   })

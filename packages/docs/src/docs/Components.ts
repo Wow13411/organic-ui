@@ -36,7 +36,8 @@ For({
   children: (item, index) => div({
     text: \`Item \${index}: \${item}\`
   })
-})`
+})`,
+        language: "typescript"
       }),
       div({
         text: "Show - Conditional Rendering",
@@ -59,7 +60,8 @@ Show({
   when: isLoggedIn,
   children: div({ text: "Welcome back!" }),
   fallback: div({ text: "Please log in" })
-})`
+})`,
+        language: "typescript"
       }),
       div({
         text: "HTML Elements",
@@ -82,7 +84,8 @@ Show({
   className: "container",
   onClick: () => console.log("clicked"),
   children: [...]
-})`
+})`,
+        language: "typescript"
       })
     ]
   })
