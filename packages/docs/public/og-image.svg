@@ -1,0 +1,46 @@
+<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="g1" cx="0%" cy="0%">
+      <stop offset="0%" style="stop-color:#a8c0ff;stop-opacity:0.6" />
+      <stop offset="100%" style="stop-color:#a8c0ff;stop-opacity:0" />
+    </radialGradient>
+    <radialGradient id="g2" cx="100%" cy="0%">
+      <stop offset="0%" style="stop-color:#c9a7eb;stop-opacity:0.6" />
+      <stop offset="100%" style="stop-color:#c9a7eb;stop-opacity:0" />
+    </radialGradient>
+    <radialGradient id="g3" cx="50%" cy="100%">
+      <stop offset="0%" style="stop-color:#fbc2eb;stop-opacity:0.5" />
+      <stop offset="100%" style="stop-color:#fbc2eb;stop-opacity:0" />
+    </radialGradient>
+    <radialGradient id="g4" cx="100%" cy="100%">
+      <stop offset="0%" style="stop-color:#a1c4fd;stop-opacity:0.5" />
+      <stop offset="100%" style="stop-color:#a1c4fd;stop-opacity:0" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#fafbff"/>
+  
+  <!-- Mesh gradient circles -->
+  <circle cx="0" cy="0" r="400" fill="url(#g1)"/>
+  <circle cx="1200" cy="0" r="450" fill="url(#g2)"/>
+  <circle cx="600" cy="630" r="500" fill="url(#g3)"/>
+  <circle cx="1200" cy="630" r="350" fill="url(#g4)"/>
+  
+  <!-- Content -->
+  <text x="600" y="250" font-family="system-ui, -apple-system, sans-serif" font-size="96" font-weight="bold" fill="#1a1a2e" text-anchor="middle">organic-ui</text>
+  
+  <text x="600" y="340" font-family="system-ui, -apple-system, sans-serif" font-size="36" fill="#4a5568" text-anchor="middle">A lightweight reactive UI framework</text>
+  
+  <!-- Feature pills -->
+  <g transform="translate(600, 420)">
+    <rect x="-280" y="0" width="180" height="50" rx="25" fill="rgba(26,26,46,0.08)"/>
+    <text x="-190" y="32" font-family="system-ui, -apple-system, sans-serif" font-size="20" fill="#2d3748" text-anchor="middle">Fine-grained</text>
+    
+    <rect x="-80" y="0" width="160" height="50" rx="25" fill="rgba(26,26,46,0.08)"/>
+    <text x="0" y="32" font-family="system-ui, -apple-system, sans-serif" font-size="20" fill="#2d3748" text-anchor="middle">Declarative</text>
+    
+    <rect x="100" y="0" width="200" height="50" rx="25" fill="rgba(26,26,46,0.08)"/>
+    <text x="200" y="32" font-family="system-ui, -apple-system, sans-serif" font-size="20" fill="#2d3748" text-anchor="middle">No build step</text>
+  </g>
+</svg>
