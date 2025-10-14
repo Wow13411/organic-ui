@@ -1,10 +1,11 @@
+import { effect } from "../reactivity.js"
 import type { Renderable } from "../types.js"
 
 interface DivProps {
   children?: Renderable[]
-  style?: Partial<CSSStyleDeclaration>
-  className?: string
-  text?: string
+  style?: Partial<CSSStyleDeclaration> | (() => Partial<CSSStyleDeclaration>)
+  className?: string | (() => string)
+  text?: string | (() => string)
   onClick?: () => void
   id?: string
   ref?: (el: HTMLDivElement) => void | (() => void)
@@ -18,13 +19,6 @@ export function div({ children = [], style, className, text, onClick, id, ref }:
     mount(parent: HTMLElement) {
       el = document.createElement("div")
 
-      // Apply class and inline styles
-      if (className) el.className = className
-      Object.assign(el.style, style)
-
-      // Set text content if provided
-      if (text) el.textContent = text
-
       // Add click handler if provided
       if (onClick) el.onclick = onClick
 
@@ -37,6 +31,39 @@ export function div({ children = [], style, className, text, onClick, id, ref }:
       }
 
       parent.appendChild(el)
+
+      // Reactive or static text
+      if (text) {
+        if (typeof text === "function") {
+          effect(() => {
+            el.textContent = text()
+          })
+        } else {
+          el.textContent = text
+        }
+      }
+
+      // Reactive or static className
+      if (className) {
+        if (typeof className === "function") {
+          effect(() => {
+            el.className = className()
+          })
+        } else {
+          el.className = className
+        }
+      }
+
+      // Reactive or static style
+      if (style) {
+        if (typeof style === "function") {
+          effect(() => {
+            Object.assign(el.style, style())
+          })
+        } else {
+          Object.assign(el.style, style)
+        }
+      }
 
       // Call ref callback after mounting
       if (ref) cleanup = ref(el)
