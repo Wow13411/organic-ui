@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "docs": "pnpm --filter docs dev",
-    "build": "pnpm --filter organic-ui build"
+    "build": "pnpm --filter organic-ui build",
+    "publish": "pnpm --filter organic-ui publish --access public"
   }
 }
