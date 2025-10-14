@@ -1,5 +1,5 @@
 import { state, effect } from "organic-ui/reactivity"
-import { div, a, Show, Switch } from "organic-ui/components"
+import { div, a, img, Show, Switch } from "organic-ui/components"
 import { Introduction } from "./docs/Introduction.js"
 import { GettingStarted } from "./docs/GettingStarted.js"
 import { Reactivity } from "./docs/Reactivity.js"
@@ -102,13 +102,33 @@ export function DocsApp() {
         },
         children: [
           div({
-            text: "organic-ui",
             style: {
-              fontSize: "24px",
-              fontWeight: "bold",
-              marginBottom: "30px",
-              color: "#2c3e50"
-            }
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+              marginLeft: "12px",
+              marginBottom: "30px"
+            },
+            children: [
+              img({
+                src: "logo.svg",
+                alt: "organic-ui logo",
+                width: 32,
+                height: 32,
+                style: {
+                  boxShadow: "0px 0px 8px #0001",
+                  borderRadius: "8px",
+                }
+              }),
+              div({
+                text: "organic-ui",
+                style: {
+                  fontSize: "24px",
+                  fontWeight: "bold",
+                  color: "#2c3e50"
+                }
+              })
+            ]
           }),
           // Navigation items in scrollable container
           div({
