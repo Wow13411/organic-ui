@@ -50,6 +50,10 @@ const root = document.getElementById("app")!
 render(() => [Counter({ label: "Clicks" })], root)
 ```
 
+## Philosophy
+
+organic-ui provides reactive primitives (`state`, `effect`, `For`, `Show`) and common HTML elements (`div`, `button`, `p`, etc.). For specialized elements or complex UI patterns, create custom components or use a component library built on organic-ui. The framework focuses on being a solid foundation rather than a complete UI toolkit.
+
 ## License
 
 MIT
