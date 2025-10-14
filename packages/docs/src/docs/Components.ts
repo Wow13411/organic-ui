@@ -66,6 +66,54 @@ Show({
         language: "typescript"
       }),
       div({
+        id: "switch",
+        text: "Switch - Pattern Matching",
+        style: {
+          fontSize: "24px",
+          fontWeight: "600",
+          marginTop: "30px",
+          marginBottom: "15px",
+          color: "#2c3e50"
+        }
+      }),
+      p({
+        text: () => "Match a value against multiple cases, rendering the first match. Cleaner alternative to Show-when ladders.",
+        style: { marginBottom: "15px", lineHeight: "1.6" }
+      }),
+      CodeViewer({
+        code: `const [status, setStatus] = state("loading")
+
+Switch({
+  on: status,
+  cases: [
+    { when: "loading", children: div({ text: "Loading..." }) },
+    { when: "success", children: div({ text: "Data loaded!" }) },
+    { when: "error", children: div({ text: "Error occurred" }) }
+  ],
+  fallback: div({ text: "Unknown status" })
+})`,
+        language: "typescript"
+      }),
+      p({
+        text: () => "Custom matcher for complex comparisons:",
+        style: { marginTop: "20px", marginBottom: "15px", lineHeight: "1.6" }
+      }),
+      CodeViewer({
+        code: `const [score, setScore] = state(85)
+
+Switch({
+  on: score,
+  matcher: (score, range) => score >= range.min && score <= range.max,
+  cases: [
+    { when: { min: 90, max: 100 }, children: div({ text: "Grade: A" }) },
+    { when: { min: 80, max: 89 }, children: div({ text: "Grade: B" }) },
+    { when: { min: 70, max: 79 }, children: div({ text: "Grade: C" }) }
+  ],
+  fallback: div({ text: "Grade: F" })
+})`,
+        language: "typescript"
+      }),
+      div({
         id: "html-elements",
         text: "HTML Elements",
         style: {
@@ -77,7 +125,7 @@ Show({
         }
       }),
       p({
-        text: () => "Common HTML elements: div, button, p, ul, li",
+        text: () => "Common HTML elements: div, button, p, a, ul, li",
         style: { marginBottom: "15px", lineHeight: "1.6" }
       }),
       CodeViewer({
@@ -87,6 +135,15 @@ Show({
   className: "container",
   onClick: () => console.log("clicked"),
   children: [...]
+})
+
+a({
+  href: "/about",
+  text: "About",
+  onClick: (e) => {
+    e.preventDefault()
+    router.navigate("/about")
+  }
 })`,
         language: "typescript"
       })

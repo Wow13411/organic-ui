@@ -1,5 +1,5 @@
 import { state, effect } from "organic-ui/reactivity"
-import { div, button, Show } from "organic-ui/components"
+import { div, a, Show, Switch } from "organic-ui/components"
 import { Introduction } from "./docs/Introduction.js"
 import { GettingStarted } from "./docs/GettingStarted.js"
 import { Reactivity } from "./docs/Reactivity.js"
@@ -32,10 +32,18 @@ function scrollToSubsection() {
 }
 
 function createTocItem(text: string, id: string, section: Section) {
-  return div({ 
+  return a({ 
+    href: `#${section}/${id}`,
     text, 
-    style: { marginBottom: "8px", color: "#666", cursor: "pointer" },
-    onClick: () => {
+    style: { 
+      display: "block",
+      marginBottom: "8px", 
+      color: "#666", 
+      textDecoration: "none",
+      cursor: "pointer" 
+    },
+    onClick: (e) => {
+      e.preventDefault()
       window.location.hash = `${section}/${id}`
       scrollToSubsection()
     }
@@ -101,19 +109,21 @@ export function DocsApp() {
             }
           }),
           ...sections.map(section =>
-            button({
-              text: () => section.label,
-              onClick: () => setActiveSection(section.id),
+            a({
+              href: `#${section.id}`,
+              text: section.label,
+              onClick: (e) => {
+                e.preventDefault()
+                setActiveSection(section.id)
+              },
               style: () => ({
                 display: "block",
                 width: "100%",
                 padding: "10px 15px",
                 marginBottom: "5px",
-                border: "none",
                 background: activeSection() === section.id ? "#007bff" : "transparent",
                 color: activeSection() === section.id ? "white" : "#333",
-                textAlign: "left",
-                cursor: "pointer",
+                textDecoration: "none",
                 borderRadius: "4px",
                 fontSize: "14px",
                 fontWeight: activeSection() === section.id ? "600" : "normal"
@@ -168,52 +178,58 @@ export function DocsApp() {
                   paddingLeft: "15px"
                 },
                 children: [
-                  Show({
-                    when: () => activeSection() === "intro",
-                    children: div({
-                      children: [
-                        createTocItem("Features", "features", "intro"),
-                        createTocItem("Philosophy", "philosophy", "intro")
-                      ]
-                    })
-                  }),
-                  Show({
-                    when: () => activeSection() === "getting-started",
-                    children: div({
-                      children: [
-                        createTocItem("Installation", "installation", "getting-started"),
-                        createTocItem("Quick Example", "quick-example", "getting-started")
-                      ]
-                    })
-                  }),
-                  Show({
-                    when: () => activeSection() === "reactivity",
-                    children: div({
-                      children: [
-                        createTocItem("state()", "state", "reactivity"),
-                        createTocItem("effect()", "effect", "reactivity")
-                      ]
-                    })
-                  }),
-                  Show({
-                    when: () => activeSection() === "components",
-                    children: div({
-                      children: [
-                        createTocItem("For", "for", "components"),
-                        createTocItem("Show", "show", "components"),
-                        createTocItem("HTML Elements", "html-elements", "components")
-                      ]
-                    })
-                  }),
-                  Show({
-                    when: () => activeSection() === "examples",
-                    children: div({
-                      children: [
-                        createTocItem("Counter", "counter", "examples"),
-                        createTocItem("Accordion", "accordion", "examples"),
-                        createTocItem("Todo List", "todo-list", "examples")
-                      ]
-                    })
+                  Switch({
+                    on: activeSection,
+                    cases: [
+                      {
+                        when: "intro",
+                        children: div({
+                          children: [
+                            createTocItem("Features", "features", "intro"),
+                            createTocItem("Philosophy", "philosophy", "intro")
+                          ]
+                        })
+                      },
+                      {
+                        when: "getting-started",
+                        children: div({
+                          children: [
+                            createTocItem("Installation", "installation", "getting-started"),
+                            createTocItem("Quick Example", "quick-example", "getting-started")
+                          ]
+                        })
+                      },
+                      {
+                        when: "reactivity",
+                        children: div({
+                          children: [
+                            createTocItem("state()", "state", "reactivity"),
+                            createTocItem("effect()", "effect", "reactivity")
+                          ]
+                        })
+                      },
+                      {
+                        when: "components",
+                        children: div({
+                          children: [
+                            createTocItem("For", "for", "components"),
+                            createTocItem("Show", "show", "components"),
+                            createTocItem("Switch", "switch", "components"),
+                            createTocItem("HTML Elements", "html-elements", "components")
+                          ]
+                        })
+                      },
+                      {
+                        when: "examples",
+                        children: div({
+                          children: [
+                            createTocItem("Counter", "counter", "examples"),
+                            createTocItem("Accordion", "accordion", "examples"),
+                            createTocItem("Todo List", "todo-list", "examples")
+                          ]
+                        })
+                      }
+                    ]
                   })
                 ]
               })
