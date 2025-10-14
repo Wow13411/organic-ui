@@ -17,13 +17,10 @@ type HtmlValue = string | number | (() => string | number)
  * html`<p>Count: ${count}</p>`
  */
 export function html(strings: TemplateStringsArray, ...values: HtmlValue[]): Renderable {
-  let el: HTMLElement
+  let elements: Node[] = []
 
   return {
     mount(parent: HTMLElement) {
-      // Create a wrapper element to hold the HTML content
-      el = document.createElement("div")
-      
       // Use effect to handle reactive updates
       effect(() => {
         // Interpolate the template strings with values
@@ -36,14 +33,23 @@ export function html(strings: TemplateStringsArray, ...values: HtmlValue[]): Ren
           htmlContent += resolvedValue + strings[i + 1]
         }
         
-        // Set the innerHTML
-        el.innerHTML = htmlContent
+        // Remove old elements
+        elements.forEach(el => el.parentNode?.removeChild(el))
+        elements = []
+        
+        // Create a temporary container to parse HTML
+        const temp = document.createElement("template")
+        temp.innerHTML = htmlContent
+        
+        // Move all nodes from template to parent
+        const fragment = temp.content
+        elements = Array.from(fragment.childNodes)
+        parent.append(fragment)
       })
-      
-      parent.appendChild(el)
     },
     unmount() {
-      el.remove()
+      elements.forEach(el => el.parentNode?.removeChild(el))
+      elements = []
     }
   }
 }
