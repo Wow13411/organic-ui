@@ -1,8 +1,8 @@
 html, body {
   margin: 0;
+  overscroll-behavior: none;
 }
 
 * {
   box-sizing: border-box;
-  overscroll-behavior: none;
 }
