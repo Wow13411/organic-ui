@@ -1,11 +1,21 @@
 import { effect } from "../reactivity.js"
 
-export function p({ text }: { text: () => string }) {
+interface PProps {
+  text: () => string
+  style?: Partial<CSSStyleDeclaration>
+  className?: string
+}
+
+export function p({ text, style, className }: PProps) {
   let el: HTMLParagraphElement
 
   return {
     mount(parent: HTMLElement) {
       el = document.createElement("p")
+      
+      if (className) el.className = className
+      if (style) Object.assign(el.style, style)
+      
       parent.appendChild(el)
 
       effect(() => {
