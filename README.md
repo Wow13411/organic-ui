@@ -14,7 +14,7 @@ A lightweight reactive UI framework with fine-grained reactivity and declarative
 ```
 packages/
   organic-ui/     # Core framework
-  demo/           # Example application
+  docs/           # Documentation
 ```
 
 ## Quick Start
@@ -23,8 +23,8 @@ packages/
 # Install dependencies
 pnpm install
 
-# Run demo
-pnpm dev
+# Run docs
+pnpm docs
 ```
 
 ## Example
