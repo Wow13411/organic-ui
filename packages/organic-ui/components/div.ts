@@ -4,9 +4,11 @@ interface DivProps {
   children?: Renderable[]
   style?: Partial<CSSStyleDeclaration>
   className?: string
+  text?: string
+  onClick?: () => void
 }
 
-export function div({ children = [], style, className }: DivProps) {
+export function div({ children = [], style, className, text, onClick }: DivProps) {
   let el: HTMLDivElement
 
   return {
@@ -16,6 +18,12 @@ export function div({ children = [], style, className }: DivProps) {
       // Apply class and inline styles
       if (className) el.className = className
       Object.assign(el.style, style)
+
+      // Set text content if provided
+      if (text) el.textContent = text
+
+      // Add click handler if provided
+      if (onClick) el.onclick = onClick
 
       // Mount child components
       for (const child of children) {
