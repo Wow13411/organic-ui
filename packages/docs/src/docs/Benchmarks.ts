@@ -175,7 +175,7 @@ export function Benchmarks() {
         document.body.appendChild(container)
         
         const duration = await measure(() => {
-          const [data, setData] = state(buildData(1000))
+          const [data] = state(buildData(1000))
           const list = For({
             each: data,
             children: (item) => div({ 

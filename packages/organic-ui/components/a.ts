@@ -86,6 +86,7 @@ export function a({ href, text, children = [], style, className, onClick, target
       parent.appendChild(el)
     },
     unmount() {
+      if (rootDispose) rootDispose()
       for (const child of children) child.unmount?.()
       el.remove()
     }
