@@ -18,9 +18,14 @@ type HtmlValue = string | number | (() => string | number)
  */
 export function html(strings: TemplateStringsArray, ...values: HtmlValue[]): Renderable {
   let elements: Node[] = []
+  let marker: Comment | null = null
 
   return {
     mount(parent: HTMLElement) {
+      // Create a marker comment node to track insertion position
+      marker = document.createComment("html-marker")
+      parent.appendChild(marker)
+
       // Use effect to handle reactive updates
       effect(() => {
         // Interpolate the template strings with values
@@ -41,15 +46,23 @@ export function html(strings: TemplateStringsArray, ...values: HtmlValue[]): Ren
         const temp = document.createElement("template")
         temp.innerHTML = htmlContent
         
-        // Move all nodes from template to parent
+        // Move all nodes from template to parent before the marker
         const fragment = temp.content
         elements = Array.from(fragment.childNodes)
-        parent.append(fragment)
+        
+        // Insert all nodes before the marker to maintain position
+        if (marker && marker.parentNode) {
+          marker.parentNode.insertBefore(fragment, marker)
+        }
       })
     },
     unmount() {
       elements.forEach(el => el.parentNode?.removeChild(el))
       elements = []
+      if (marker && marker.parentNode) {
+        marker.parentNode.removeChild(marker)
+      }
+      marker = null
     }
   }
 }
