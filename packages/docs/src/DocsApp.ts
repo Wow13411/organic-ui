@@ -5,14 +5,15 @@ import { GettingStarted } from "./docs/GettingStarted.js"
 import { Reactivity } from "./docs/Reactivity.js"
 import { Components } from "./docs/Components.js"
 import { Examples } from "./docs/Examples.js"
+import { Benchmarks } from "./docs/Benchmarks.js"
 
-type Section = "intro" | "getting-started" | "reactivity" | "components" | "examples"
+type Section = "intro" | "getting-started" | "reactivity" | "components" | "examples" | "benchmarks"
 
 function getSectionFromHash(): Section {
   const hash = window.location.hash.slice(1) // Remove the '#'
   // Extract section from hash (e.g., "reactivity/state" -> "reactivity")
   const section = hash.split('/')[0]
-  const validSections: Section[] = ["intro", "getting-started", "reactivity", "components", "examples"]
+  const validSections: Section[] = ["intro", "getting-started", "reactivity", "components", "examples", "benchmarks"]
   return validSections.includes(section as Section) ? (section as Section) : "intro"
 }
 
@@ -58,7 +59,8 @@ export function DocsApp() {
     { id: "getting-started", label: "Getting Started", component: GettingStarted },
     { id: "reactivity", label: "Reactivity", component: Reactivity },
     { id: "components", label: "Components", component: Components },
-    { id: "examples", label: "Examples", component: Examples }
+    { id: "examples", label: "Examples", component: Examples },
+    { id: "benchmarks", label: "Benchmarks", component: Benchmarks }
   ]
 
   // Update URL when activeSection changes (only if not already set)
@@ -308,6 +310,16 @@ export function DocsApp() {
                             createTocItem("HTML Component Demo", "html-demo", "examples"),
                             createTocItem("Todo List", "todo-list", "examples"),
                             createTocItem("Metronome", "metronome", "examples")
+                          ]
+                        })
+                      },
+                      {
+                        when: "benchmarks",
+                        children: div({
+                          children: [
+                            createTocItem("Performance Tests", "performance", "benchmarks"),
+                            createTocItem("Results Summary", "results", "benchmarks"),
+                            createTocItem("Comparison", "comparison", "benchmarks")
                           ]
                         })
                       }
