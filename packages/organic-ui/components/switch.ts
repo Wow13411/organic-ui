@@ -1,4 +1,4 @@
-import { effect } from "../reactivity.js"
+import { effect, createRoot } from "../reactivity.js"
 import type { Renderable } from "../types.js"
 
 interface SwitchCase<T> {
@@ -16,6 +16,7 @@ interface SwitchProps<T> {
 export function Switch<T>({ on, matcher = (a, b) => a === b, cases, fallback }: SwitchProps<T>): Renderable {
   let container: HTMLElement
   let currentRenderables: Renderable[] = []
+  let rootDispose: (() => void) | undefined
 
   const mountRenderables = (renderables: Renderable[]) => {
     for (const renderable of renderables) {
@@ -34,31 +35,40 @@ export function Switch<T>({ on, matcher = (a, b) => a === b, cases, fallback }: 
     mount(parent: HTMLElement) {
       container = parent
 
-      effect(() => {
-        // Unmount current renderables
-        unmountRenderables()
+      // Create a root scope for the effect
+      const root = createRoot(() => {
+        effect(() => {
+          // Unmount current renderables
+          unmountRenderables()
 
-        const onValue = on()
-        
-        // Find matching case
-        for (const caseItem of cases) {
-          if (matcher(onValue, caseItem.when)) {
-            currentRenderables = Array.isArray(caseItem.children) 
-              ? caseItem.children 
-              : [caseItem.children]
-            mountRenderables(currentRenderables)
-            return
+          const onValue = on()
+          
+          // Find matching case
+          for (const caseItem of cases) {
+            if (matcher(onValue, caseItem.when)) {
+              currentRenderables = Array.isArray(caseItem.children) 
+                ? caseItem.children 
+                : [caseItem.children]
+              mountRenderables(currentRenderables)
+              return
+            }
           }
-        }
-        
-        // Use fallback if no match
-        if (fallback) {
-          currentRenderables = Array.isArray(fallback) ? fallback : [fallback]
-          mountRenderables(currentRenderables)
-        }
+          
+          // Use fallback if no match
+          if (fallback) {
+            currentRenderables = Array.isArray(fallback) ? fallback : [fallback]
+            mountRenderables(currentRenderables)
+          }
+        })
       })
+
+      rootDispose = root.dispose
     },
     unmount() {
+      // Dispose the effect
+      if (rootDispose) rootDispose()
+
+      // Unmount current renderables
       unmountRenderables()
     }
   }

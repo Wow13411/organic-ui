@@ -1,4 +1,4 @@
-import { effect } from "../reactivity.js"
+import { effect, createRoot } from "../reactivity.js"
 
 interface PProps {
   text: () => string
@@ -8,6 +8,7 @@ interface PProps {
 
 export function p({ text, style, className }: PProps) {
   let el: HTMLParagraphElement
+  let rootDispose: (() => void) | undefined
 
   return {
     mount(parent: HTMLElement) {
@@ -18,11 +19,17 @@ export function p({ text, style, className }: PProps) {
       
       parent.appendChild(el)
 
-      effect(() => {
-        el.textContent = text()
+      // Create a root scope for the effect
+      const root = createRoot(() => {
+        effect(() => {
+          el.textContent = text()
+        })
       })
+
+      rootDispose = root.dispose
     },
     unmount() {
+      if (rootDispose) rootDispose()
       el.remove()
     }
   }

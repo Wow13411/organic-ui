@@ -1,4 +1,4 @@
-import { effect } from "../reactivity.js"
+import { effect, createRoot } from "../reactivity.js"
 import type { Renderable } from "../types.js"
 
 interface InputProps {
@@ -32,6 +32,7 @@ export function input({
 }: InputProps): Renderable {
   let el: HTMLInputElement
   let cleanup: (() => void) | void
+  let rootDispose: (() => void) | undefined
 
   return {
     mount(parent: HTMLElement) {
@@ -44,41 +45,6 @@ export function input({
       if (step !== undefined) el.step = String(step)
       if (id) el.id = id
 
-      parent.appendChild(el)
-
-      // Reactive or static value
-      if (value !== undefined) {
-        if (typeof value === "function") {
-          effect(() => {
-            el.value = String(value())
-          })
-        } else {
-          el.value = String(value)
-        }
-      }
-
-      // Reactive or static className
-      if (className) {
-        if (typeof className === "function") {
-          effect(() => {
-            el.className = className()
-          })
-        } else {
-          el.className = className
-        }
-      }
-
-      // Reactive or static style
-      if (style) {
-        if (typeof style === "function") {
-          effect(() => {
-            Object.assign(el.style, style())
-          })
-        } else {
-          Object.assign(el.style, style)
-        }
-      }
-
       // Event handlers
       if (onInput) {
         el.oninput = (e) => onInput((e.target as HTMLInputElement).value)
@@ -87,10 +53,51 @@ export function input({
         el.onchange = (e) => onChange((e.target as HTMLInputElement).value)
       }
 
-      // Call ref callback after mounting
-      if (ref) cleanup = ref(el)
+      parent.appendChild(el)
+
+      // Create a root scope for all reactive effects
+      const root = createRoot(() => {
+        // Reactive or static value
+        if (value !== undefined) {
+          if (typeof value === "function") {
+            effect(() => {
+              el.value = String(value())
+            })
+          } else {
+            el.value = String(value)
+          }
+        }
+
+        // Reactive or static className
+        if (className) {
+          if (typeof className === "function") {
+            effect(() => {
+              el.className = className()
+            })
+          } else {
+            el.className = className
+          }
+        }
+
+        // Reactive or static style
+        if (style) {
+          if (typeof style === "function") {
+            effect(() => {
+              Object.assign(el.style, style())
+            })
+          } else {
+            Object.assign(el.style, style)
+          }
+        }
+
+        // Call ref callback after mounting
+        if (ref) cleanup = ref(el)
+      })
+
+      rootDispose = root.dispose
     },
     unmount() {
+      if (rootDispose) rootDispose()
       if (cleanup) cleanup()
       el.remove()
     }
