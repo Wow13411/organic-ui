@@ -736,6 +736,118 @@ export function Benchmarks() {
                     })
                   ]
                 })
+              }),
+              // Footer rows - WGM calculations
+              div({
+                style: () => ({
+                  display: results().length === benchmarks.length ? "grid" : "none",
+                  gridTemplateColumns: "2fr 1fr 1fr 1fr 100px",
+                  gap: "10px",
+                  padding: "15px",
+                  borderTop: "2px solid #2c3e50",
+                  fontSize: "14px",
+                  alignItems: "center",
+                  background: "#f8f9fa",
+                  fontWeight: "600"
+                }),
+                children: [
+                  div({ 
+                    text: "Weighted Geometric Mean",
+                    style: { fontWeight: "700", color: "#2c3e50" }
+                  }),
+                  div({ 
+                    text: () => {
+                      // Calculate WGM for Vanilla JS
+                      let vanillaWeightedLogSum = 0
+                      let totalWeight = 0
+                      
+                      for (const result of results()) {
+                        const weight = benchmarkWeights[result.name] || 0.2
+                        const time = result.vanillaJS <= 0 ? EPSILON : result.vanillaJS
+                        vanillaWeightedLogSum += weight * Math.log(time)
+                        totalWeight += weight
+                      }
+                      
+                      const vanillaWGM = Math.exp(vanillaWeightedLogSum / totalWeight)
+                      return formatNumber(vanillaWGM)
+                    },
+                    style: { color: "#2c3e50" }
+                  }),
+                  div({ 
+                    text: () => {
+                      // Calculate WGM for Organic UI
+                      let organicWeightedLogSum = 0
+                      let totalWeight = 0
+                      
+                      for (const result of results()) {
+                        const weight = benchmarkWeights[result.name] || 0.2
+                        const time = result.organicUI <= 0 ? EPSILON : result.organicUI
+                        organicWeightedLogSum += weight * Math.log(time)
+                        totalWeight += weight
+                      }
+                      
+                      const organicWGM = Math.exp(organicWeightedLogSum / totalWeight)
+                      return formatNumber(organicWGM)
+                    },
+                    style: { color: "#2c3e50" }
+                  }),
+                  div({ 
+                    text: "-",
+                    style: { color: "#999" }
+                  }),
+                  div({ text: "" })
+                ]
+              }),
+              div({
+                style: () => ({
+                  display: results().length === benchmarks.length ? "grid" : "none",
+                  gridTemplateColumns: "2fr 1fr 1fr 1fr 100px",
+                  gap: "10px",
+                  padding: "15px",
+                  borderTop: "1px solid #dee2e6",
+                  fontSize: "14px",
+                  alignItems: "center",
+                  background: "#f8f9fa",
+                  fontWeight: "600"
+                }),
+                children: [
+                  div({ 
+                    text: "Relative WGM (Organic UI / Vanilla JS)",
+                    style: { fontWeight: "700", color: "#2c3e50" }
+                  }),
+                  div({ 
+                    text: "1.00x",
+                    style: { color: "#28a745", fontWeight: "700" }
+                  }),
+                  div({ 
+                    text: () => {
+                      const score = calculateWeightedGeometricMean(results())
+                      return formatRatio(score)
+                    },
+                    style: () => {
+                      const score = calculateWeightedGeometricMean(results())
+                      return {
+                        fontWeight: "700",
+                        color: getRatioColor(score)
+                      }
+                    }
+                  }),
+                  div({ 
+                    text: () => {
+                      const score = calculateWeightedGeometricMean(results())
+                      return formatRatio(score)
+                    },
+                    style: () => {
+                      const score = calculateWeightedGeometricMean(results())
+                      return {
+                        fontWeight: "700",
+                        fontSize: "16px",
+                        color: getRatioColor(score)
+                      }
+                    }
+                  }),
+                  div({ text: "" })
+                ]
               })
             ]
           }),
