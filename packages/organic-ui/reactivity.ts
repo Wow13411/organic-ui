@@ -4,6 +4,33 @@ type EffectFn = () => void | CleanupFn
 
 let currentEffect: Fn | null = null
 
+// Auto-batching state
+let updateScheduled = false
+let pendingUpdates = new Set<Fn>()
+
+/**
+ * Schedule an effect to run in the next microtask
+ * Multiple updates in the same synchronous block are automatically batched
+ */
+function scheduleUpdate(fn: Fn) {
+  pendingUpdates.add(fn)
+  
+  if (!updateScheduled) {
+    updateScheduled = true
+    queueMicrotask(() => {
+      updateScheduled = false
+      
+      // Run all pending updates in one batch
+      const updates = Array.from(pendingUpdates)
+      pendingUpdates.clear()
+      
+      for (const update of updates) {
+        update()
+      }
+    })
+  }
+}
+
 export function state<T>(initial: T) {
   let value = initial
   const subs = new Set<Fn>()
@@ -17,7 +44,11 @@ export function state<T>(initial: T) {
     const next = typeof nextOrFn === "function" ? (nextOrFn as (prev: T) => T)(value) : nextOrFn
     if (next !== value) {
       value = next
-      for (const fn of subs) fn()
+      
+      // Auto-batch all updates using microtask scheduling
+      for (const fn of subs) {
+        scheduleUpdate(fn)
+      }
     }
   }
 
