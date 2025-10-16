@@ -130,3 +130,28 @@ export function effect(fn: EffectFn): void {
     currentOwner.cleanups.push(dispose)
   }
 }
+
+/**
+ * Create a memoized computed value that only recomputes when dependencies change
+ * Returns a getter function that caches the result until dependencies update
+ */
+export function memo<T>(fn: () => T): () => T {
+  let value: T
+  const subs = new Set<Fn>()
+
+  // Create an effect that recomputes when dependencies change
+  effect(() => {
+    value = fn()
+
+    // Notify subscribers that the value has changed
+    for (const sub of subs) {
+      scheduleUpdate(sub)
+    }
+  })
+
+  // Return a getter that subscribes to the memo
+  return (): T => {
+    if (currentEffect) subs.add(currentEffect)
+    return value
+  }
+}

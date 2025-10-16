@@ -4,6 +4,7 @@ import { Accordion } from "../components/Accordion.js"
 import { TodoList } from "../components/TodoList.js"
 import { HtmlDemo } from "../components/HtmlDemo.js"
 import { Metronome } from "../components/Metronome.js"
+import { MemoExample } from "../components/MemoExample.js"
 import { ExampleTabs } from "../components/ExampleTabs.js"
 
 import counterCode from "../components/Counter.ts?raw"
@@ -11,6 +12,7 @@ import accordionCode from "../components/Accordion.ts?raw"
 import htmlDemoCode from "../components/HtmlDemo.ts?raw"
 import todoListCode from "../components/TodoList.ts?raw"
 import metronomeCode from "../components/Metronome.ts?raw"
+import memoExampleCode from "../components/MemoExample.ts?raw"
 
 export function Examples() {
   return div({
@@ -113,6 +115,22 @@ export function Examples() {
       ExampleTabs({
         preview: () => Metronome(),
         code: metronomeCode
+      }),
+      
+      div({
+        id: "memo-example",
+        text: "Memo (Computed Values)",
+        style: {
+          fontSize: "24px",
+          fontWeight: "600",
+          marginTop: "40px",
+          marginBottom: "15px",
+          color: "#2c3e50"
+        }
+      }),
+      ExampleTabs({
+        preview: () => MemoExample(),
+        code: memoExampleCode
       })
     ]
   })

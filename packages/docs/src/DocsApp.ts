@@ -284,7 +284,8 @@ export function DocsApp() {
                         children: div({
                           children: [
                             createTocItem("state()", "state", "reactivity"),
-                            createTocItem("effect()", "effect", "reactivity")
+                            createTocItem("effect()", "effect", "reactivity"),
+                            createTocItem("memo()", "memo", "reactivity")
                           ]
                         })
                       },
