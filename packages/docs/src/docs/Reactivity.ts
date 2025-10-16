@@ -68,23 +68,23 @@ setName("organic-ui")  // Logs: "Hello, organic-ui!"`,
         language: "typescript"
       }),
       p({
-        text: () => "Effects can return a cleanup function that runs before the effect re-runs or when disposed:",
+        text: () => "Effects can return a cleanup function that runs before the effect re-runs or when the component unmounts:",
         style: { marginTop: "15px", marginBottom: "15px", lineHeight: "1.6" }
       }),
       CodeViewer({
         code: `const [delay, setDelay] = state(1000)
 
-const dispose = effect(() => {
+effect(() => {
   const id = setInterval(() => {
     console.log("tick")
   }, delay())
   
-  // Cleanup: runs when delay changes or dispose() is called
+  // Cleanup: runs when delay changes or component unmounts
   return () => clearInterval(id)
 })
 
-// Later: stop the effect and run cleanup
-dispose()`,
+// Effects are automatically cleaned up when the component unmounts
+// No manual disposal needed!`,
         language: "typescript"
       })
     ]

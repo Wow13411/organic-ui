@@ -7,60 +7,55 @@ export function Metronome() {
   const [beatCount, setBeatCount] = state(0)
   
   // Effect that manages the metronome interval
-  const setupMetronome = () => {
-    const dispose = effect(() => {
-      if (!isPlaying()) {
-        // No interval when stopped
-        return
-      }
-      
-      const currentBpm = bpm()
-      const intervalMs = 60000 / currentBpm
-      
-      // Create audio context for beep sound
-      const audioContext = new AudioContext()
-      
-      const playBeep = () => {
-        const oscillator = audioContext.createOscillator()
-        const gainNode = audioContext.createGain()
-        
-        oscillator.connect(gainNode)
-        gainNode.connect(audioContext.destination)
-        
-        oscillator.frequency.value = 800
-        oscillator.type = "sine"
-        
-        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime)
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1)
-        
-        oscillator.start(audioContext.currentTime)
-        oscillator.stop(audioContext.currentTime + 0.1)
-        
-        // Use updater function to increment count
-        setBeatCount(count => count + 1)
-      }
-      
-      // Play first beat immediately
-      playBeep()
-      
-      // Set up interval for subsequent beats
-      const id = setInterval(playBeep, intervalMs)
-      
-      // Cleanup: clear interval and close audio context when effect re-runs
-      return () => {
-        clearInterval(id)
-        if (audioContext.state !== "closed") {
-          audioContext.close()
-        }
-      }
-    })
+  // No need to manually track disposal - owner-based cleanup handles it
+  effect(() => {
+    if (!isPlaying()) {
+      // No interval when stopped
+      return
+    }
     
-    // Return cleanup for component unmount
-    return dispose
-  }
+    const currentBpm = bpm()
+    const intervalMs = 60000 / currentBpm
+    
+    // Create audio context for beep sound
+    const audioContext = new AudioContext()
+    
+    const playBeep = () => {
+      const oscillator = audioContext.createOscillator()
+      const gainNode = audioContext.createGain()
+      
+      oscillator.connect(gainNode)
+      gainNode.connect(audioContext.destination)
+      
+      oscillator.frequency.value = 800
+      oscillator.type = "sine"
+      
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime)
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1)
+      
+      oscillator.start(audioContext.currentTime)
+      oscillator.stop(audioContext.currentTime + 0.1)
+      
+      // Use updater function to increment count
+      setBeatCount(count => count + 1)
+    }
+    
+    // Play first beat immediately
+    playBeep()
+    
+    // Set up interval for subsequent beats
+    const id = setInterval(playBeep, intervalMs)
+    
+    // Cleanup: clear interval and close audio context when effect re-runs
+    return () => {
+      clearInterval(id)
+      if (audioContext.state !== "closed") {
+        audioContext.close()
+      }
+    }
+  })
   
   return div({
-    ref: setupMetronome,
     style: {
       padding: "20px",
       border: "2px solid #3b82f6",
