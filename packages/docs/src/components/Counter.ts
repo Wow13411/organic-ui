@@ -12,8 +12,8 @@ export function Counter({ label }: { label: string }) {
     },
     children: [
       p({ text: () => `${label}: ${count()}` }),
-      button({ text: () => "+", onClick: () => setCount(count() + 1) }),
-      button({ text: () => "-", onClick: () => setCount(count() - 1) })
+      button({ text: () => "+", onClick: () => setCount(c => c + 1) }),
+      button({ text: () => "-", onClick: () => setCount(c => c - 1) })
     ]
   })
 }

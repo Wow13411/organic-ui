@@ -118,8 +118,9 @@ export function Metronome() {
       button({
         text: () => isPlaying() ? "Stop" : "Start",
         onClick: () => {
-          setIsPlaying(!isPlaying())
-          if (!isPlaying()) {
+          const wasPlaying = isPlaying()
+          setIsPlaying(playing => !playing)
+          if (wasPlaying) {
             setBeatCount(0)
           }
         },

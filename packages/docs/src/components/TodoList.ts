@@ -1,17 +1,27 @@
 import { state } from "organic-ui/reactivity"
 import { div, button, For, p } from "organic-ui/components"
 
+interface TodoItem {
+  id: number
+  text: string
+}
+
 export function TodoList() {
-  const [items, setItems] = state<string[]>(["Learn organic-ui", "Build something cool", "Ship it!"])
-  const [nextId, setNextId] = state(items().length)
+  const [items, setItems] = state<TodoItem[]>([
+    { id: 0, text: "Learn organic-ui" },
+    { id: 1, text: "Build something cool" },
+    { id: 2, text: "Ship it!" }
+  ])
+  const [nextId, setNextId] = state(3)
 
   const addItem = () => {
-    setItems([...items(), `New task ${nextId()}`])
-    setNextId(nextId() + 1)
+    const id = nextId()
+    setItems([...items(), { id, text: `New task ${id}` }])
+    setNextId(id => id + 1)
   }
 
-  const removeItem = (index: number) => {
-    setItems(items().filter((_, i) => i !== index))
+  const removeItem = (id: number) => {
+    setItems(items().filter(item => item.id !== id))
   }
 
   return div({
@@ -35,7 +45,8 @@ export function TodoList() {
         children: [
           For({
             each: items,
-            children: (item, index) => div({
+            key: (item) => item.id,
+            children: (item) => div({
               style: {
                 display: "flex",
                 alignItems: "center",
@@ -47,12 +58,12 @@ export function TodoList() {
               },
               children: [
                 div({
-                  text: item,
+                  text: item.text,
                   style: { flex: "1" }
                 }),
                 button({
                   text: () => "Remove",
-                  onClick: () => removeItem(index)
+                  onClick: () => removeItem(item.id)
                 })
               ]
             }),

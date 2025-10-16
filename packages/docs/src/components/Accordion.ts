@@ -19,7 +19,7 @@ export function Accordion({ title, content }: { title: string; content: () => st
           background: "#eee",
           padding: "8px"
         },
-        onClick: () => setOpen(!open())
+        onClick: () => setOpen(isOpen => !isOpen)
       }),
       Show({
         when: open,

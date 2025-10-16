@@ -68,7 +68,7 @@ export function HtmlDemo() {
           }),
           button({
             text: () => "Increment",
-            onClick: () => setCount(count() + 1),
+            onClick: () => setCount(c => c + 1),
             style: {
               padding: "8px 16px",
               background: "#28a745",
