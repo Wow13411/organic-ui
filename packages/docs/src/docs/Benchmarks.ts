@@ -23,6 +23,9 @@ function formatNumber(num: number): string {
 }
 
 function formatRatio(ratio: number): string {
+  if (!isFinite(ratio) || isNaN(ratio)) {
+    return '-'
+  }
   return `${ratio.toFixed(2)}x`
 }
 
@@ -32,6 +35,10 @@ function getRatioColor(ratio: number): string {
   if (ratio < 1.5) return '#fd7e14' // Acceptable (within 50%)
   return '#dc3545' // Needs optimization
 }
+
+// Small epsilon value for measurements that are too fast to measure accurately
+// Represents ~0.01ms (10 microseconds)
+const EPSILON = 0.01
 
 // Weights based on js-framework-benchmark methodology
 // Using 1 / (90th percentile of slowdown factors)
@@ -49,18 +56,45 @@ const benchmarkWeights: Record<string, number> = {
 function calculateWeightedGeometricMean(results: BenchmarkResult[]): number {
   if (results.length === 0) return 0
   
-  // Calculate weighted geometric mean
-  // Formula: exp(sum(weight_i * ln(ratio_i)) / sum(weight_i))
-  let weightedLogSum = 0
+  // Calculate WGM for Organic UI times
+  let organicWeightedLogSum = 0
   let totalWeight = 0
   
   for (const result of results) {
     const weight = benchmarkWeights[result.name] || 0.2 // Default weight
-    weightedLogSum += weight * Math.log(result.ratio)
+    
+    // Use epsilon for zero or negative measurements
+    const time = result.organicUI <= 0 ? EPSILON : result.organicUI
+    
+    organicWeightedLogSum += weight * Math.log(time)
     totalWeight += weight
   }
   
-  return Math.exp(weightedLogSum / totalWeight)
+  const organicWGM = Math.exp(organicWeightedLogSum / totalWeight)
+  
+  // Calculate WGM for Vanilla JS times
+  let vanillaWeightedLogSum = 0
+  
+  for (const result of results) {
+    const weight = benchmarkWeights[result.name] || 0.2
+    
+    // Use epsilon for zero or negative measurements
+    const time = result.vanillaJS <= 0 ? EPSILON : result.vanillaJS
+    
+    vanillaWeightedLogSum += weight * Math.log(time)
+  }
+  
+  const vanillaWGM = Math.exp(vanillaWeightedLogSum / totalWeight)
+  
+  // Calculate ratio
+  const ratio = organicWGM / vanillaWGM
+  
+  // Handle edge cases
+  if (!isFinite(ratio) || isNaN(ratio)) {
+    return 0 // Return 0 for invalid ratios
+  }
+  
+  return ratio
 }
 
 async function measure(fn: () => void, warmup: number, iterations: number): Promise<number> {
@@ -506,7 +540,17 @@ export function Benchmarks() {
     try {
       const organicDuration = await benchmark.runOrganic()
       const vanillaDuration = await benchmark.runVanilla()
-      const ratio = organicDuration / vanillaDuration
+      
+      // Calculate ratio with epsilon for zero measurements
+      const organicTime = organicDuration <= 0 ? EPSILON : organicDuration
+      const vanillaTime = vanillaDuration <= 0 ? EPSILON : vanillaDuration
+      
+      let ratio = organicTime / vanillaTime
+      
+      // Handle edge cases (shouldn't happen with epsilon, but just in case)
+      if (!isFinite(ratio) || isNaN(ratio)) {
+        ratio = 0
+      }
       
       const result: BenchmarkResult = {
         name: benchmark.name,
@@ -631,8 +675,8 @@ export function Benchmarks() {
                 },
                 children: [
                   div({ text: "Benchmark" }),
-                  div({ text: "Organic UI (ms)" }),
                   div({ text: "Vanilla JS (ms)" }),
+                  div({ text: "Organic UI (ms)" }),
                   div({ text: "Ratio" }),
                   div({ text: "Action" })
                 ]
@@ -658,13 +702,13 @@ export function Benchmarks() {
                       style: { fontWeight: "500" }
                     }),
                     div({ 
-                      text: () => result() ? formatNumber(result()!.organicUI) : "-",
+                      text: () => result() ? formatNumber(result()!.vanillaJS) : "-",
                       style: () => ({
                         color: result() ? "#2c3e50" : "#ccc"
                       })
                     }),
                     div({ 
-                      text: () => result() ? formatNumber(result()!.vanillaJS) : "-",
+                      text: () => result() ? formatNumber(result()!.organicUI) : "-",
                       style: () => ({
                         color: result() ? "#2c3e50" : "#ccc"
                       })
