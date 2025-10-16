@@ -1,5 +1,5 @@
 import { state } from "organic-ui/reactivity"
-import { div, button, For, Show, p } from "organic-ui/components"
+import { div, button, For, p } from "organic-ui/components"
 
 export function TodoList() {
   const [items, setItems] = state<string[]>(["Learn organic-ui", "Build something cool", "Ship it!"])
@@ -33,31 +33,28 @@ export function TodoList() {
           marginBottom: "12px"
         },
         children: [
-          Show({
-            when: () => items().length > 0,
-            children: For({
-              each: items,
-              children: (item, index) => div({
-                style: {
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  padding: "8px",
-                  background: "#f5f5f5",
-                  margin: "4px 0",
-                  borderRadius: "4px"
-                },
-                children: [
-                  div({
-                    text: item,
-                    style: { flex: "1" }
-                  }),
-                  button({
-                    text: () => "Remove",
-                    onClick: () => removeItem(index)
-                  })
-                ]
-              })
+          For({
+            each: items,
+            children: (item, index) => div({
+              style: {
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "8px",
+                background: "#f5f5f5",
+                margin: "4px 0",
+                borderRadius: "4px"
+              },
+              children: [
+                div({
+                  text: item,
+                  style: { flex: "1" }
+                }),
+                button({
+                  text: () => "Remove",
+                  onClick: () => removeItem(index)
+                })
+              ]
             }),
             fallback: p({
               text: () => "No tasks yet. Add one to get started!",

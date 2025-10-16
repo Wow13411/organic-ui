@@ -40,6 +40,40 @@ For({
 })`,
         language: "typescript"
       }),
+      p({
+        text: () => "Use the key prop for efficient reconciliation when items can be reordered:",
+        style: { marginTop: "15px", marginBottom: "15px", lineHeight: "1.6" }
+      }),
+      CodeViewer({
+        code: `const [todos, setTodos] = state([
+  { id: 1, text: "Learn Organic UI" },
+  { id: 2, text: "Build an app" }
+])
+
+For({
+  each: todos,
+  key: (todo) => todo.id,  // Reuse DOM nodes when IDs match
+  children: (todo) => div({
+    text: () => todo.text
+  })
+})`,
+        language: "typescript"
+      }),
+      p({
+        text: () => "Use the fallback prop to show content when the list is empty:",
+        style: { marginTop: "15px", marginBottom: "15px", lineHeight: "1.6" }
+      }),
+      CodeViewer({
+        code: `For({
+  each: items,
+  children: (item) => div({ text: item }),
+  fallback: div({
+    text: "No items to display",
+    style: { color: "#999", fontStyle: "italic" }
+  })
+})`,
+        language: "typescript"
+      }),
       div({
         id: "show",
         text: "Show - Conditional Rendering",
