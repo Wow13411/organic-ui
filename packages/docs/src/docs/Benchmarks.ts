@@ -98,9 +98,11 @@ function calculateWeightedGeometricMean(results: BenchmarkResult[]): number {
 }
 
 async function measure(fn: () => void, warmup: number, iterations: number): Promise<number> {
-  // Warmup
+  // Warmup runs
   for (let i = 0; i < warmup; i++) {
     fn()
+    // Small delay between warmup iterations
+    await new Promise(resolve => setTimeout(resolve, 10))
   }
   
   // Force GC if available
@@ -110,14 +112,35 @@ async function measure(fn: () => void, warmup: number, iterations: number): Prom
   
   await new Promise(resolve => setTimeout(resolve, 50))
   
-  // Actual measurement
-  const start = performance.now()
-  for (let i = 0; i < iterations; i++) {
-    fn()
-  }
-  const end = performance.now()
+  // Collect measurements from multiple iterations
+  const measurements: number[] = []
   
-  return end - start
+  for (let i = 0; i < iterations; i++) {
+    // Force GC before each measurement if available
+    if ((window as any).gc) {
+      (window as any).gc()
+    }
+    
+    await new Promise(resolve => setTimeout(resolve, 10))
+    
+    const start = performance.now()
+    fn()
+    const end = performance.now()
+    
+    measurements.push(end - start)
+  }
+  
+  // Return median value (following js-framework-benchmark spec)
+  measurements.sort((a, b) => a - b)
+  const mid = Math.floor(measurements.length / 2)
+  
+  if (measurements.length % 2 === 0) {
+    // Even number of measurements: average of two middle values
+    return (measurements[mid - 1] + measurements[mid]) / 2
+  } else {
+    // Odd number of measurements: middle value
+    return measurements[mid]
+  }
 }
 
 // Data for benchmarks
@@ -144,9 +167,9 @@ export function Benchmarks() {
     {
       id: 'create-1000',
       name: 'Create 1,000 rows',
-      description: 'Duration for creating 1,000 rows after the page loaded (no warmup)',
+      description: 'Duration for creating 1,000 rows (median of 3 runs)',
       warmupIterations: 0,
-      runIterations: 1,
+      runIterations: 3,
       runOrganic: async () => {
         const container = document.createElement('div')
         document.body.appendChild(container)
@@ -188,9 +211,9 @@ export function Benchmarks() {
     {
       id: 'replace-all',
       name: 'Replace all rows',
-      description: 'Duration for replacing all 1,000 rows (with 5 warmup iterations)',
+      description: 'Duration for replacing all 1,000 rows (5 warmup, median of 3 runs)',
       warmupIterations: 5,
-      runIterations: 1,
+      runIterations: 3,
       runOrganic: async () => {
         const container = document.createElement('div')
         document.body.appendChild(container)
@@ -237,9 +260,9 @@ export function Benchmarks() {
     {
       id: 'partial-update',
       name: 'Partial update',
-      description: 'Time to update the text of every 10th row for 10,000 rows (with 5 warmup iterations)',
+      description: 'Duration for updating every 10th row in 10,000 rows (5 warmup, median of 3 runs)',
       warmupIterations: 5,
-      runIterations: 1,
+      runIterations: 3,
       runOrganic: async () => {
         const container = document.createElement('div')
         document.body.appendChild(container)
@@ -288,9 +311,9 @@ export function Benchmarks() {
     {
       id: 'swap-rows',
       name: 'Swap rows',
-      description: 'Time to swap 2 rows on a 1,000 row table (with 5 warmup iterations)',
+      description: 'Duration for swapping 2 rows in a 1,000 row table (5 warmup, median of 3 runs)',
       warmupIterations: 5,
-      runIterations: 1,
+      runIterations: 3,
       runOrganic: async () => {
         const container = document.createElement('div')
         document.body.appendChild(container)
@@ -349,9 +372,9 @@ export function Benchmarks() {
     {
       id: 'remove-row',
       name: 'Remove row',
-      description: 'Duration to remove a row (with 5 warmup iterations)',
+      description: 'Duration for removing a row from a 1,000 row table (5 warmup, median of 3 runs)',
       warmupIterations: 5,
-      runIterations: 1,
+      runIterations: 3,
       runOrganic: async () => {
         const container = document.createElement('div')
         document.body.appendChild(container)
@@ -398,9 +421,9 @@ export function Benchmarks() {
     {
       id: 'create-10000',
       name: 'Create 10,000 rows',
-      description: 'Duration to create 10,000 rows (no warmup)',
+      description: 'Duration for creating 10,000 rows (median of 3 runs)',
       warmupIterations: 0,
-      runIterations: 1,
+      runIterations: 3,
       runOrganic: async () => {
         const container = document.createElement('div')
         document.body.appendChild(container)
@@ -440,9 +463,9 @@ export function Benchmarks() {
     {
       id: 'append-1000',
       name: 'Append 1,000 to 10,000 rows',
-      description: 'Duration for adding 1,000 rows on a table of 10,000 rows (no warmup)',
+      description: 'Duration for appending 1,000 rows to a table of 10,000 rows (median of 3 runs)',
       warmupIterations: 0,
-      runIterations: 1,
+      runIterations: 3,
       runOrganic: async () => {
         const container = document.createElement('div')
         document.body.appendChild(container)
@@ -489,9 +512,9 @@ export function Benchmarks() {
     {
       id: 'clear-10000',
       name: 'Clear 10,000 rows',
-      description: 'Duration to clear the table filled with 10,000 rows (no warmup)',
+      description: 'Duration to clear the table filled with 10,000 rows (median of 3 runs)',
       warmupIterations: 0,
-      runIterations: 1,
+      runIterations: 3,
       runOrganic: async () => {
         const container = document.createElement('div')
         document.body.appendChild(container)
