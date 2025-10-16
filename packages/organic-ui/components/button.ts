@@ -1,4 +1,5 @@
 import { effect, createRoot } from "../reactivity.js";
+import { bind, bindAssign } from "../utils/bind.js";
 
 interface ButtonProps {
   text: () => string
@@ -24,26 +25,16 @@ export function button({ text, onClick, style, className }: ButtonProps) {
           el.textContent = text()
         })
 
-        // Reactive or static className
-        if (className) {
-          if (typeof className === "function") {
-            effect(() => {
-              el.className = className()
-            })
-          } else {
-            el.className = className
-          }
+        // Reactive or static className (explicit null check to allow empty strings)
+        if (className != null) {
+          bind(className, (value) => {
+            el.className = value
+          })
         }
 
         // Reactive or static style
-        if (style) {
-          if (typeof style === "function") {
-            effect(() => {
-              Object.assign(el.style, style())
-            })
-          } else {
-            Object.assign(el.style, style)
-          }
+        if (style != null) {
+          bindAssign(style, el.style)
         }
       })
 

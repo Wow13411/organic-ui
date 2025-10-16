@@ -1,4 +1,5 @@
 import { effect, createRoot } from "../reactivity.js"
+import { bind, bindAssign } from "../utils/bind.js"
 import type { Renderable } from "../types.js"
 
 interface AnchorProps {
@@ -29,45 +30,27 @@ export function a({ href, text, children = [], style, className, onClick, target
       // Create a root scope for all reactive effects
       const root = createRoot(() => {
         // Reactive or static href
-        if (typeof href === "function") {
-          effect(() => {
-            el.href = href()
-          })
-        } else {
-          el.href = href
-        }
+        bind(href, (value) => {
+          el.href = value
+        })
 
         // Reactive or static text
-        if (text) {
-          if (typeof text === "function") {
-            effect(() => {
-              el.textContent = text()
-            })
-          } else {
-            el.textContent = text
-          }
+        if (text != null) {
+          bind(text, (value) => {
+            el.textContent = value
+          })
         }
 
         // Reactive or static className
-        if (className) {
-          if (typeof className === "function") {
-            effect(() => {
-              el.className = className()
-            })
-          } else {
-            el.className = className
-          }
+        if (className != null) {
+          bind(className, (value) => {
+            el.className = value
+          })
         }
 
         // Reactive or static style
-        if (style) {
-          if (typeof style === "function") {
-            effect(() => {
-              Object.assign(el.style, style())
-            })
-          } else {
-            Object.assign(el.style, style)
-          }
+        if (style != null) {
+          bindAssign(style, el.style)
         }
       })
 

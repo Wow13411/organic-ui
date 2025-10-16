@@ -1,4 +1,5 @@
-import { effect, createRoot } from "../reactivity.js"
+import { createRoot } from "../reactivity.js"
+import { bind } from "../utils/bind.js"
 
 interface PProps {
   text: () => string
@@ -21,8 +22,8 @@ export function p({ text, style, className }: PProps) {
 
       // Create a root scope for the effect
       const root = createRoot(() => {
-        effect(() => {
-          el.textContent = text()
+        bind(text, (value) => {
+          el.textContent = value
         })
       })
 

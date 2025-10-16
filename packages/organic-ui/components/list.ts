@@ -1,3 +1,5 @@
+import { createRoot } from "../reactivity.js"
+import { bind } from "../utils/bind.js"
 import type { Renderable } from "../types.js"
 
 interface ListProps {
@@ -38,6 +40,7 @@ interface ListItemProps {
 
 export function li({ text, style, className, onClick }: ListItemProps) {
   let el: HTMLLIElement
+  let rootDispose: (() => void) | undefined
 
   return {
     mount(parent: HTMLElement) {
@@ -50,18 +53,19 @@ export function li({ text, style, className, onClick }: ListItemProps) {
 
       parent.appendChild(el)
 
-      // Handle reactive text
-      if (typeof text === "function") {
-        import("../reactivity.js").then(({ effect }) => {
-          effect(() => {
-            el.textContent = text()
+      // Create a root scope for reactive text
+      const root = createRoot(() => {
+        if (text != null) {
+          bind(text, (value) => {
+            el.textContent = value
           })
-        })
-      } else if (text) {
-        el.textContent = text
-      }
+        }
+      })
+
+      rootDispose = root.dispose
     },
     unmount() {
+      if (rootDispose) rootDispose()
       el.remove()
     }
   }
