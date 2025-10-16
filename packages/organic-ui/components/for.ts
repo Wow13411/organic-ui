@@ -12,6 +12,7 @@ interface KeyedItem<T> {
   key: unknown
   item: T
   renderable: Renderable
+  marker: Comment  // DOM marker node to track position
 }
 
 export function For<T, K = T>({ each, children, key, fallback }: ForProps<T, K>): Renderable {
@@ -52,7 +53,7 @@ export function For<T, K = T>({ each, children, key, fallback }: ForProps<T, K>)
           }
 
           if (key) {
-            // Keyed reconciliation - reuse DOM nodes when keys match
+            // Optimized keyed reconciliation with minimal DOM operations
             const newItems: KeyedItem<T>[] = []
             const oldItemsByKey = new Map<unknown, KeyedItem<T>>()
             const oldItemsSet = new Set(currentItems)
@@ -73,39 +74,92 @@ export function For<T, K = T>({ each, children, key, fallback }: ForProps<T, K>)
                 newItems.push(existing)
                 oldItemsSet.delete(existing) // Mark as reused
               } else {
-                // Create new renderable
+                // Create new renderable with marker
+                const marker = document.createComment(`item-${String(itemKey)}`)
                 const renderable = children(item, i)
-                newItems.push({ key: itemKey, item, renderable })
+                newItems.push({ key: itemKey, item, renderable, marker })
               }
             }
 
             // Unmount items that are no longer in the list
             for (const oldItem of oldItemsSet) {
               oldItem.renderable.unmount?.()
+              oldItem.marker.remove()
             }
 
-            // Clear container and remount all in correct order
-            // This is simple but not optimal - a production implementation
-            // would use insertBefore to minimize DOM operations
-            container.innerHTML = ''
-            for (const { renderable } of newItems) {
-              renderable.mount(container)
+            // Reorder DOM nodes efficiently using markers
+            // Only move nodes that are out of order
+            let previousMarker: Comment | null = null
+            
+            for (const newItem of newItems) {
+              const { marker, renderable } = newItem
+              
+              // Check if marker is already in the correct position
+              if (previousMarker) {
+                const nextSibling: Node | null = previousMarker.nextSibling
+                if (nextSibling !== marker) {
+                  // Marker is out of order - need to move it
+                  if (!marker.parentNode) {
+                    // New item - mount it
+                    const tempContainer = document.createElement('div')
+                    renderable.mount(tempContainer)
+                    
+                    // Insert marker and all nodes before next marker
+                    container.insertBefore(marker, nextSibling)
+                    while (tempContainer.firstChild) {
+                      container.insertBefore(tempContainer.firstChild, nextSibling)
+                    }
+                  } else {
+                    // Existing item - move it
+                    const nodesToMove: Node[] = []
+                    let current: Node | null = marker
+                    
+                    // Collect all nodes until next marker or end
+                    while (current && !(current instanceof Comment && current !== marker)) {
+                      nodesToMove.push(current)
+                      current = current.nextSibling
+                      if (current instanceof Comment) break
+                    }
+                    
+                    // Move all collected nodes
+                    for (const node of nodesToMove) {
+                      container.insertBefore(node, nextSibling)
+                    }
+                  }
+                }
+              } else {
+                // First item
+                if (!marker.parentNode) {
+                  // New item - mount at beginning
+                  const tempContainer = document.createElement('div')
+                  renderable.mount(tempContainer)
+                  
+                  container.insertBefore(marker, container.firstChild)
+                  while (tempContainer.firstChild) {
+                    container.insertBefore(tempContainer.firstChild, marker.nextSibling)
+                  }
+                }
+              }
+              
+              previousMarker = marker
             }
 
             currentItems = newItems
           } else {
             // Non-keyed: simple replace all
-            for (const { renderable } of currentItems) {
+            for (const { renderable, marker } of currentItems) {
               renderable.unmount?.()
+              marker.remove()
             }
 
-            currentItems = items.map((item, index) => ({
-              key: index,
-              item,
-              renderable: children(item, index)
-            }))
+            currentItems = items.map((item, index) => {
+              const marker = document.createComment(`item-${index}`)
+              const renderable = children(item, index)
+              return { key: index, item, renderable, marker }
+            })
 
-            for (const { renderable } of currentItems) {
+            for (const { marker, renderable } of currentItems) {
+              container.appendChild(marker)
               renderable.mount(container)
             }
           }
@@ -124,9 +178,10 @@ export function For<T, K = T>({ each, children, key, fallback }: ForProps<T, K>)
         fallbackRenderable = null
       }
 
-      // Unmount all current items
-      for (const { renderable } of currentItems) {
+      // Unmount all current items and remove markers
+      for (const { renderable, marker } of currentItems) {
         renderable.unmount?.()
+        marker.remove()
       }
       currentItems = []
     }
