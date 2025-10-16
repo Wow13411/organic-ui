@@ -96,21 +96,28 @@ export function For<T, K = T>({ each, children, key, fallback }: ForProps<T, K>)
               
               // Check if marker is already in the correct position
               if (previousMarker) {
-                const nextSibling: Node | null = previousMarker.nextSibling
-                if (nextSibling !== marker) {
+                // Find the insertion point: after previous item's content
+                // Skip past previous marker and its content to find next marker or end
+                let insertionPoint: Node | null = previousMarker.nextSibling
+                while (insertionPoint && !(insertionPoint instanceof Comment)) {
+                  insertionPoint = insertionPoint.nextSibling
+                }
+                
+                if (insertionPoint !== marker) {
                   // Marker is out of order - need to move it
                   if (!marker.parentNode) {
                     // New item - mount it
                     const tempContainer = document.createElement('div')
                     renderable.mount(tempContainer)
                     
-                    // Insert marker and all nodes before next marker
-                    container.insertBefore(marker, nextSibling)
+                    // Insert marker first, then content
+                    container.insertBefore(marker, insertionPoint)
                     while (tempContainer.firstChild) {
-                      container.insertBefore(tempContainer.firstChild, nextSibling)
+                      container.insertBefore(tempContainer.firstChild, insertionPoint)
                     }
                   } else {
                     // Existing item - move it
+                    // Marker is BEFORE content, collect from marker forward
                     const nodesToMove: Node[] = []
                     let current: Node | null = marker
                     
@@ -123,7 +130,7 @@ export function For<T, K = T>({ each, children, key, fallback }: ForProps<T, K>)
                     
                     // Move all collected nodes
                     for (const node of nodesToMove) {
-                      container.insertBefore(node, nextSibling)
+                      container.insertBefore(node, insertionPoint)
                     }
                   }
                 }
@@ -134,6 +141,7 @@ export function For<T, K = T>({ each, children, key, fallback }: ForProps<T, K>)
                   const tempContainer = document.createElement('div')
                   renderable.mount(tempContainer)
                   
+                  // Insert marker first, then content
                   container.insertBefore(marker, container.firstChild)
                   while (tempContainer.firstChild) {
                     container.insertBefore(tempContainer.firstChild, marker.nextSibling)
