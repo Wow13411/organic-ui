@@ -1,5 +1,6 @@
 import { div, p } from "organic-ui/components"
 import { CodeViewer } from "../components/CodeViewer.js"
+import "./docs.css"
 
 export function Components() {
 
@@ -7,27 +8,16 @@ export function Components() {
     children: [
       div({
         text: "Components",
-        style: {
-          fontSize: "32px",
-          fontWeight: "bold",
-          marginBottom: "20px",
-          color: "#2c3e50"
-        }
+        className: "docs-page-title"
       }),
       div({
         id: "for",
         text: "For - List Rendering",
-        style: {
-          fontSize: "24px",
-          fontWeight: "600",
-          marginTop: "30px",
-          marginBottom: "15px",
-          color: "#2c3e50"
-        }
+        className: "docs-section-title"
       }),
       p({
         text: () => "Render dynamic lists that automatically update when the array changes.",
-        style: { marginBottom: "15px", lineHeight: "1.6" }
+        className: "docs-text"
       }),
       CodeViewer({
         code: `const [items, setItems] = state(["A", "B", "C"])
@@ -42,7 +32,7 @@ For({
       }),
       p({
         text: () => "Use the key prop for efficient reconciliation when items can be reordered:",
-        style: { marginTop: "15px", marginBottom: "15px", lineHeight: "1.6" }
+        className: "docs-text"
       }),
       CodeViewer({
         code: `const [todos, setTodos] = state([
@@ -61,7 +51,7 @@ For({
       }),
       p({
         text: () => "Use the fallback prop to show content when the list is empty:",
-        style: { marginTop: "15px", marginBottom: "15px", lineHeight: "1.6" }
+        className: "docs-text"
       }),
       CodeViewer({
         code: `For({
@@ -77,17 +67,11 @@ For({
       div({
         id: "show",
         text: "Show - Conditional Rendering",
-        style: {
-          fontSize: "24px",
-          fontWeight: "600",
-          marginTop: "30px",
-          marginBottom: "15px",
-          color: "#2c3e50"
-        }
+        className: "docs-section-title"
       }),
       p({
         text: () => "Conditionally render components with optional fallback.",
-        style: { marginBottom: "15px", lineHeight: "1.6" }
+        className: "docs-text"
       }),
       CodeViewer({
         code: `const [isLoggedIn, setIsLoggedIn] = state(false)
@@ -102,17 +86,11 @@ Show({
       div({
         id: "switch",
         text: "Switch - Pattern Matching",
-        style: {
-          fontSize: "24px",
-          fontWeight: "600",
-          marginTop: "30px",
-          marginBottom: "15px",
-          color: "#2c3e50"
-        }
+        className: "docs-section-title"
       }),
       p({
         text: () => "Match a value against multiple cases, rendering the first match. Cleaner alternative to Show-when ladders.",
-        style: { marginBottom: "15px", lineHeight: "1.6" }
+        className: "docs-text"
       }),
       CodeViewer({
         code: `const [status, setStatus] = state("loading")
@@ -130,7 +108,7 @@ Switch({
       }),
       p({
         text: () => "Custom matcher for complex comparisons:",
-        style: { marginTop: "20px", marginBottom: "15px", lineHeight: "1.6" }
+        className: "docs-text"
       }),
       CodeViewer({
         code: `const [score, setScore] = state(85)
@@ -150,17 +128,11 @@ Switch({
       div({
         id: "html",
         text: "html - Raw HTML Rendering",
-        style: {
-          fontSize: "24px",
-          fontWeight: "600",
-          marginTop: "30px",
-          marginBottom: "15px",
-          color: "#2c3e50"
-        }
+        className: "docs-section-title"
       }),
       p({
         text: () => "Render raw HTML content using tagged template literals. Supports both static and dynamic (reactive) content.",
-        style: { marginBottom: "15px", lineHeight: "1.6" }
+        className: "docs-text"
       }),
       CodeViewer({
         code: `// Static HTML
@@ -182,22 +154,17 @@ html\`
       }),
       p({
         text: () => "⚠️ Note: Be careful with user-generated content to avoid XSS vulnerabilities. Always sanitize untrusted input.",
-        style: { marginTop: "15px", marginBottom: "15px", lineHeight: "1.6", color: "#856404", background: "#fff3cd", padding: "10px", borderRadius: "4px" }
+        className: "docs-warning",
+        style: { margin: "15px 0" }
       }),
       div({
         id: "html-elements",
         text: "HTML Elements",
-        style: {
-          fontSize: "24px",
-          fontWeight: "600",
-          marginTop: "30px",
-          marginBottom: "15px",
-          color: "#2c3e50"
-        }
+        className: "docs-section-title"
       }),
       p({
         text: () => "Common HTML elements: div, button, p, a, ul, li",
-        style: { marginBottom: "15px", lineHeight: "1.6" }
+        className: "docs-text"
       }),
       CodeViewer({
         code: `div({ 
@@ -221,17 +188,11 @@ a({
       div({
         id: "ref",
         text: "ref - DOM Element Access",
-        style: {
-          fontSize: "24px",
-          fontWeight: "600",
-          marginTop: "30px",
-          marginBottom: "15px",
-          color: "#2c3e50"
-        }
+        className: "docs-section-title"
       }),
       p({
         text: () => "Access the underlying DOM element after it's mounted. The ref callback receives the element and can optionally return a cleanup function.",
-        style: { marginBottom: "15px", lineHeight: "1.6" }
+        className: "docs-text"
       }),
       CodeViewer({
         code: `// Basic usage - access element after mount
@@ -272,7 +233,7 @@ div({
       }),
       p({
         text: () => "The ref callback is called after the element is added to the DOM, ensuring you can safely interact with it. The cleanup function (if returned) is called when the component unmounts.",
-        style: { marginTop: "15px", marginBottom: "15px", lineHeight: "1.6" }
+        className: "docs-text"
       })
     ]
   })

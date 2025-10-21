@@ -6,6 +6,7 @@ import { HtmlDemo } from "../components/HtmlDemo.js"
 import { Metronome } from "../components/Metronome.js"
 import { MemoExample } from "../components/MemoExample.js"
 import { ExampleTabs } from "../components/ExampleTabs.js"
+import "./docs.css"
 
 import counterCode from "../components/Counter.ts?raw"
 import accordionCode from "../components/Accordion.ts?raw"
@@ -19,23 +20,13 @@ export function Examples() {
     children: [
       div({
         text: "Examples",
-        style: {
-          fontSize: "32px",
-          fontWeight: "bold",
-          marginBottom: "30px",
-          color: "#2c3e50"
-        }
+        className: "docs-page-title"
       }),
       
       div({
         id: "counter",
         text: "Counter",
-        style: {
-          fontSize: "24px",
-          fontWeight: "600",
-          marginBottom: "15px",
-          color: "#2c3e50"
-        }
+        className: "docs-section-title"
       }),
       ExampleTabs({
         preview: () => Counter({ label: "Clicks" }),
@@ -45,13 +36,7 @@ export function Examples() {
       div({
         id: "accordion",
         text: "Accordion",
-        style: {
-          fontSize: "24px",
-          fontWeight: "600",
-          marginTop: "40px",
-          marginBottom: "15px",
-          color: "#2c3e50"
-        }
+        className: "docs-section-title"
       }),
       ExampleTabs({
         preview: () => div({
@@ -72,13 +57,7 @@ export function Examples() {
       div({
         id: "html-demo",
         text: "HTML Component Demo",
-        style: {
-          fontSize: "24px",
-          fontWeight: "600",
-          marginTop: "40px",
-          marginBottom: "15px",
-          color: "#2c3e50"
-        }
+        className: "docs-section-title"
       }),
       ExampleTabs({
         preview: () => HtmlDemo(),
@@ -88,13 +67,7 @@ export function Examples() {
       div({
         id: "todo-list",
         text: "Todo List",
-        style: {
-          fontSize: "24px",
-          fontWeight: "600",
-          marginTop: "40px",
-          marginBottom: "15px",
-          color: "#2c3e50"
-        }
+        className: "docs-section-title"
       }),
       ExampleTabs({
         preview: () => TodoList(),
@@ -104,13 +77,7 @@ export function Examples() {
       div({
         id: "metronome",
         text: "Metronome (Effect Cleanup)",
-        style: {
-          fontSize: "24px",
-          fontWeight: "600",
-          marginTop: "40px",
-          marginBottom: "15px",
-          color: "#2c3e50"
-        }
+        className: "docs-section-title"
       }),
       ExampleTabs({
         preview: () => Metronome(),
@@ -120,13 +87,7 @@ export function Examples() {
       div({
         id: "memo-example",
         text: "Memo (Computed Values)",
-        style: {
-          fontSize: "24px",
-          fontWeight: "600",
-          marginTop: "40px",
-          marginBottom: "15px",
-          color: "#2c3e50"
-        }
+        className: "docs-section-title"
       }),
       ExampleTabs({
         preview: () => MemoExample(),

@@ -1,11 +1,12 @@
 import { state, effect } from "organic-ui/reactivity"
-import { div, a, img, Show, Switch } from "organic-ui/components"
+import { div, a, img, Show, Switch, button } from "organic-ui/components"
 import { Introduction } from "./docs/Introduction.js"
 import { GettingStarted } from "./docs/GettingStarted.js"
 import { Reactivity } from "./docs/Reactivity.js"
 import { Components } from "./docs/Components.js"
 import { Examples } from "./docs/Examples.js"
 import { Benchmarks } from "./docs/Benchmarks.js"
+import "./DocsApp.css"
 
 type Section = "intro" | "getting-started" | "reactivity" | "components" | "examples" | "benchmarks"
 
@@ -35,14 +36,8 @@ function scrollToSubsection() {
 function createTocItem(text: string, id: string, section: Section) {
   return a({ 
     href: `#${section}/${id}`,
-    text, 
-    style: { 
-      display: "block",
-      marginBottom: "8px", 
-      color: "#666", 
-      textDecoration: "none",
-      cursor: "pointer" 
-    },
+    text,
+    className: "toc-item",
     onClick: (e) => {
       e.preventDefault()
       window.location.hash = `${section}/${id}`
@@ -53,6 +48,7 @@ function createTocItem(text: string, id: string, section: Section) {
 
 export function DocsApp() {
   const [activeSection, setActiveSection] = state<Section>(getSectionFromHash())
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = state(false)
 
   const sections: { id: Section; label: string; component: () => any }[] = [
     { id: "intro", label: "Introduction", component: Introduction },
@@ -82,63 +78,37 @@ export function DocsApp() {
   scrollToSubsection()
 
   return div({
-    style: {
-      display: "flex",
-      minHeight: "100dvh",
-      fontFamily: "system-ui, -apple-system, sans-serif"
-    },
+    className: "docs-app",
     children: [
+      // Mobile menu button
+      button({
+        text: () => "☰",
+        onClick: () => setIsMobileMenuOpen(!isMobileMenuOpen()),
+        className: "mobile-menu-button"
+      }),
       // Sidebar
       div({
-        style: {
-          width: "250px",
-          background: "#f8f9fa",
-          padding: "20px",
-          paddingRight: "0",
-          borderRight: "1px solid #e0e0e0",
-          position: "sticky",
-          top: "0",
-          height: "100dvh",
-          display: "flex",
-          flexDirection: "column"
-        },
+        className: () => `sidebar ${isMobileMenuOpen() ? "open" : "closed"}`,
         children: [
           div({
-            style: {
-              display: "flex",
-              alignItems: "center",
-              gap: "12px",
-              marginLeft: "12px",
-              marginBottom: "30px"
-            },
+            className: "sidebar-header",
             children: [
               img({
                 src: "logo.svg",
                 alt: "organic-ui logo",
                 width: 32,
                 height: 32,
-                style: {
-                  boxShadow: "0px 0px 8px #0001",
-                  borderRadius: "8px",
-                }
+                className: "sidebar-logo"
               }),
               div({
                 text: "organic-ui",
-                style: {
-                  fontSize: "24px",
-                  fontWeight: "bold",
-                  color: "#2c3e50"
-                }
+                className: "sidebar-title"
               })
             ]
           }),
           // Navigation items in scrollable container
           div({
-            style: {
-              flex: "1",
-              overflowY: "auto",
-              minHeight: "0"
-            },
+            className: "sidebar-nav",
             children: sections.map(section =>
               a({
                 href: `#${section.id}`,
@@ -146,87 +116,53 @@ export function DocsApp() {
                 onClick: (e) => {
                   e.preventDefault()
                   setActiveSection(section.id)
+                  setIsMobileMenuOpen(false)
                 },
-                style: () => ({
-                  display: "block",
-                  width: "100%",
-                  padding: "10px 15px",
-                  marginBottom: "5px",
-                  background: activeSection() === section.id ? "#007bff" : "transparent",
-                  color: activeSection() === section.id ? "white" : "#333",
-                  textDecoration: "none",
-                  borderRadius: "4px",
-                  fontSize: "14px",
-                  fontWeight: activeSection() === section.id ? "600" : "normal",
-                  borderTopRightRadius: "0",
-                  borderBottomRightRadius: "0",
-                })
+                className: () => `sidebar-nav-item ${activeSection() === section.id ? "active" : ""}`
               })
             )
           }),
           // Links section at bottom
           div({
-            style: {
-              flexShrink: "0",
-              paddingTop: "20px",
-              borderTop: "1px solid #e0e0e0"
-            },
+            className: "sidebar-footer",
             children: [
               div({
                 text: "Links",
-                style: {
-                  fontSize: "12px",
-                  fontWeight: "600",
-                  marginBottom: "10px",
-                  color: "#666",
-                  textTransform: "uppercase"
-                }
+                className: "sidebar-footer-title"
               }),
               a({
                 href: "https://github.com/pavi2410/organic-ui",
                 text: "GitHub",
                 target: "_blank",
                 rel: "noopener noreferrer",
-                style: {
-                  display: "block",
-                  padding: "8px 0",
-                  color: "#333",
-                  textDecoration: "none",
-                  fontSize: "14px"
-                }
+                className: "sidebar-footer-link"
               }),
               a({
                 href: "https://www.npmjs.com/package/organic-ui",
                 text: "npm",
                 target: "_blank",
                 rel: "noopener noreferrer",
-                style: {
-                  display: "block",
-                  padding: "8px 0",
-                  color: "#333",
-                  textDecoration: "none",
-                  fontSize: "14px"
-                }
+                className: "sidebar-footer-link"
               })
             ]
           })
         ]
       }),
+      // Overlay for mobile menu
+      Show({
+        when: isMobileMenuOpen,
+        children: div({
+          onClick: () => setIsMobileMenuOpen(false),
+          className: "mobile-overlay"
+        })
+      }),
       // Main content area with TOC
       div({
-        style: {
-          flex: "1",
-          display: "flex",
-          gap: "40px",
-          padding: "40px",
-        },
+        className: "main-content-area",
         children: [
           // Content
           div({
-            style: {
-              flex: "1",
-              maxWidth: "700px"
-            },
+            className: "content",
             children: sections.map(section =>
               Show({
                 when: () => activeSection() === section.id,
@@ -236,27 +172,14 @@ export function DocsApp() {
           }),
           // Table of Contents (right sidebar)
           div({
-            style: {
-              width: "200px",
-              position: "sticky",
-              top: "40px",
-              height: "fit-content",
-              fontSize: "14px"
-            },
+            className: "toc",
             children: [
               div({
                 text: "On this page",
-                style: {
-                  fontWeight: "600",
-                  marginBottom: "15px",
-                  color: "#2c3e50"
-                }
+                className: "toc-title"
               }),
               div({
-                style: {
-                  borderLeft: "2px solid #e0e0e0",
-                  paddingLeft: "15px"
-                },
+                className: "toc-list",
                 children: [
                   Switch({
                     on: activeSection,

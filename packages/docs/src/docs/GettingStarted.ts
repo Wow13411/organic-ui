@@ -1,5 +1,6 @@
 import { div } from "organic-ui/components"
 import { CodeViewer } from "../components/CodeViewer.js"
+import "./docs.css"
 
 export function GettingStarted() {
 
@@ -7,35 +8,18 @@ export function GettingStarted() {
     children: [
       div({
         text: "Getting Started",
-        style: {
-          fontSize: "32px",
-          fontWeight: "bold",
-          marginBottom: "20px",
-          color: "#2c3e50"
-        }
+        className: "docs-page-title"
       }),
       div({
         id: "installation",
         text: "Installation",
-        style: {
-          fontSize: "24px",
-          fontWeight: "600",
-          marginTop: "30px",
-          marginBottom: "15px",
-          color: "#2c3e50"
-        }
+        className: "docs-section-title"
       }),
       CodeViewer({ code: "pnpm install organic-ui" }),
       div({
         id: "quick-example",
         text: "Quick Example",
-        style: {
-          fontSize: "24px",
-          fontWeight: "600",
-          marginTop: "30px",
-          marginBottom: "15px",
-          color: "#2c3e50"
-        }
+        className: "docs-section-title"
       }),
       CodeViewer({ 
         code: `import { render } from "organic-ui/renderer"

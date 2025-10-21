@@ -1,5 +1,6 @@
 import { div, p } from "organic-ui/components"
 import { CodeViewer } from "../components/CodeViewer.js"
+import "./docs.css"
 
 export function Reactivity() {
 
@@ -7,27 +8,16 @@ export function Reactivity() {
     children: [
       div({
         text: "Reactivity",
-        style: {
-          fontSize: "32px",
-          fontWeight: "bold",
-          marginBottom: "20px",
-          color: "#2c3e50"
-        }
+        className: "docs-page-title"
       }),
       div({
         id: "state",
         text: "state()",
-        style: {
-          fontSize: "24px",
-          fontWeight: "600",
-          marginTop: "30px",
-          marginBottom: "15px",
-          color: "#2c3e50"
-        }
+        className: "docs-section-title"
       }),
       p({
         text: () => "Create reactive state that automatically updates the UI when changed.",
-        style: { marginBottom: "15px", lineHeight: "1.6" }
+        className: "docs-text"
       }),
       CodeViewer({
         code: `const [count, setCount] = state(0)
@@ -45,17 +35,11 @@ setCount(prev => prev + 1)`,
       div({
         id: "effect",
         text: "effect()",
-        style: {
-          fontSize: "24px",
-          fontWeight: "600",
-          marginTop: "30px",
-          marginBottom: "15px",
-          color: "#2c3e50"
-        }
+        className: "docs-section-title"
       }),
       p({
         text: () => "Run side effects that automatically re-run when dependencies change.",
-        style: { marginBottom: "15px", lineHeight: "1.6" }
+        className: "docs-text"
       }),
       CodeViewer({
         code: `const [name, setName] = state("World")
@@ -69,7 +53,7 @@ setName("organic-ui")  // Logs: "Hello, organic-ui!"`,
       }),
       p({
         text: () => "Effects can return a cleanup function that runs before the effect re-runs or when the component unmounts:",
-        style: { marginTop: "15px", marginBottom: "15px", lineHeight: "1.6" }
+        className: "docs-text"
       }),
       CodeViewer({
         code: `const [delay, setDelay] = state(1000)
@@ -90,17 +74,11 @@ effect(() => {
       div({
         id: "memo",
         text: "memo()",
-        style: {
-          fontSize: "24px",
-          fontWeight: "600",
-          marginTop: "30px",
-          marginBottom: "15px",
-          color: "#2c3e50"
-        }
+        className: "docs-section-title"
       }),
       p({
         text: () => "Create memoized computed values that only recompute when dependencies change.",
-        style: { marginBottom: "15px", lineHeight: "1.6" }
+        className: "docs-text"
       }),
       CodeViewer({
         code: `const [firstName, setFirstName] = state("John")
@@ -122,7 +100,7 @@ console.log(fullName())  // "Jane Doe"`,
       }),
       p({
         text: () => "Memos are especially useful for expensive computations:",
-        style: { marginTop: "15px", marginBottom: "15px", lineHeight: "1.6" }
+        className: "docs-text"
       }),
       CodeViewer({
         code: `const [items, setItems] = state([1, 2, 3, 4, 5])
@@ -140,13 +118,7 @@ console.log(memoizedSum())  // Cached: 15 (no recalculation!)`,
         language: "typescript"
       }),
       div({
-        style: {
-          marginTop: "20px",
-          padding: "16px",
-          backgroundColor: "#f0f9ff",
-          borderRadius: "8px",
-          border: "1px solid #bae6fd"
-        },
+        className: "docs-note",
         children: [
           p({
             text: () => "💡 See it in action:",
