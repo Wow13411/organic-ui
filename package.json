@@ -5,5 +5,9 @@
     "docs": "pnpm --filter docs dev",
     "build": "pnpm --filter organic-ui build",
     "publish": "pnpm --filter organic-ui publish --access public"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.1.15",
+    "tailwindcss": "^4.1.15"
   }
 }
