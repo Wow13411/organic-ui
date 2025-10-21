@@ -1,13 +1,14 @@
 import { createRoot } from "../reactivity.js"
 import { bind } from "../utils/bind.js"
 
-interface PProps {
-  text: () => string
-  style?: Partial<CSSStyleDeclaration>
-  className?: string
-}
+type PProps = {
+  text: string | (() => string)
+} & Partial<{
+  style: Partial<CSSStyleDeclaration>
+  class: string
+}>
 
-export function p({ text, style, className }: PProps) {
+export function p({ text, style, class: className }: PProps) {
   let el: HTMLParagraphElement
   let rootDispose: (() => void) | undefined
 

@@ -14,26 +14,20 @@ interface SwitchProps<T> {
 }
 
 export function Switch<T>({ on, matcher = (a, b) => a === b, cases, fallback }: SwitchProps<T>): Renderable {
-  let container: HTMLElement
-  let currentRenderables: Renderable[] = []
-  let rootDispose: (() => void) | undefined
-
-  const mountRenderables = (renderables: Renderable[]) => {
-    for (const renderable of renderables) {
-      renderable.mount(container)
-    }
-  }
-
-  const unmountRenderables = () => {
-    for (const renderable of currentRenderables) {
-      renderable.unmount?.()
-    }
-    currentRenderables = []
-  }
-
   return {
     mount(parent: HTMLElement) {
-      container = parent
+      let currentRenderables: Renderable[] = []
+      let currentCleanups: (() => void)[] = []
+
+      const mountRenderables = (renderables: Renderable[]) => {
+        currentCleanups = renderables.map(renderable => renderable.mount(parent))
+      }
+
+      const unmountRenderables = () => {
+        currentCleanups.forEach(cleanup => cleanup())
+        currentCleanups = []
+        currentRenderables = []
+      }
 
       // Create a root scope for the effect
       const root = createRoot(() => {
@@ -62,14 +56,15 @@ export function Switch<T>({ on, matcher = (a, b) => a === b, cases, fallback }: 
         })
       })
 
-      rootDispose = root.dispose
-    },
-    unmount() {
-      // Dispose the effect
-      if (rootDispose) rootDispose()
+      const rootDispose = root.dispose
 
-      // Unmount current renderables
-      unmountRenderables()
+      return () => {
+        // Dispose the effect
+        if (rootDispose) rootDispose()
+
+        // Unmount current renderables
+        unmountRenderables()
+      }
     }
   }
 }

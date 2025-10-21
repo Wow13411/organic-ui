@@ -12,18 +12,16 @@ interface KeyedItem<T> {
   key: unknown
   item: T
   renderable: Renderable
+  cleanup: () => void
   marker: Comment  // DOM marker node to track position
 }
 
 export function For<T, K = T>({ each, children, key, fallback }: ForProps<T, K>): Renderable {
-  let container: HTMLElement
-  let currentItems: KeyedItem<T>[] = []
-  let fallbackRenderable: Renderable | null = null
-  let rootDispose: (() => void) | undefined
-
   return {
     mount(parent: HTMLElement) {
-      container = parent
+      let currentItems: KeyedItem<T>[] = []
+      let fallbackRenderable: Renderable | null = null
+      let fallbackCleanup: (() => void) | null = null
 
       // Create a root scope for the effect
       const root = createRoot(() => {
@@ -33,22 +31,23 @@ export function For<T, K = T>({ each, children, key, fallback }: ForProps<T, K>)
           // Handle empty list with fallback
           if (items.length === 0) {
             // Unmount all current items
-            for (const { renderable } of currentItems) {
-              renderable.unmount?.()
+            for (const { cleanup } of currentItems) {
+              cleanup()
             }
             currentItems = []
 
             // Mount fallback if provided
             if (fallback && !fallbackRenderable) {
               fallbackRenderable = fallback
-              fallbackRenderable.mount(container)
+              fallbackCleanup = fallbackRenderable.mount(parent)
             }
             return
           }
 
           // Unmount fallback if it was showing
-          if (fallbackRenderable) {
-            fallbackRenderable.unmount?.()
+          if (fallbackCleanup) {
+            fallbackCleanup()
+            fallbackCleanup = null
             fallbackRenderable = null
           }
 
@@ -77,13 +76,14 @@ export function For<T, K = T>({ each, children, key, fallback }: ForProps<T, K>)
                 // Create new renderable with marker
                 const marker = document.createComment(`item-${String(itemKey)}`)
                 const renderable = children(item, i)
-                newItems.push({ key: itemKey, item, renderable, marker })
+                // Will be mounted later, cleanup will be set then
+                newItems.push({ key: itemKey, item, renderable, marker, cleanup: () => {} })
               }
             }
 
             // Unmount items that are no longer in the list
             for (const oldItem of oldItemsSet) {
-              oldItem.renderable.unmount?.()
+              oldItem.cleanup()
               oldItem.marker.remove()
             }
 
@@ -108,12 +108,12 @@ export function For<T, K = T>({ each, children, key, fallback }: ForProps<T, K>)
                   if (!marker.parentNode) {
                     // New item - mount it
                     const tempContainer = document.createElement('div')
-                    renderable.mount(tempContainer)
+                    newItem.cleanup = renderable.mount(tempContainer)
                     
                     // Insert marker first, then content
-                    container.insertBefore(marker, insertionPoint)
+                    parent.insertBefore(marker, insertionPoint)
                     while (tempContainer.firstChild) {
-                      container.insertBefore(tempContainer.firstChild, insertionPoint)
+                      parent.insertBefore(tempContainer.firstChild, insertionPoint)
                     }
                   } else {
                     // Existing item - move it
@@ -130,7 +130,7 @@ export function For<T, K = T>({ each, children, key, fallback }: ForProps<T, K>)
                     
                     // Move all collected nodes
                     for (const node of nodesToMove) {
-                      container.insertBefore(node, insertionPoint)
+                      parent.insertBefore(node, insertionPoint)
                     }
                   }
                 }
@@ -139,12 +139,12 @@ export function For<T, K = T>({ each, children, key, fallback }: ForProps<T, K>)
                 if (!marker.parentNode) {
                   // New item - mount at beginning
                   const tempContainer = document.createElement('div')
-                  renderable.mount(tempContainer)
+                  newItem.cleanup = renderable.mount(tempContainer)
                   
                   // Insert marker first, then content
-                  container.insertBefore(marker, container.firstChild)
+                  parent.insertBefore(marker, parent.firstChild)
                   while (tempContainer.firstChild) {
-                    container.insertBefore(tempContainer.firstChild, marker.nextSibling)
+                    parent.insertBefore(tempContainer.firstChild, marker.nextSibling)
                   }
                 }
               }
@@ -155,43 +155,42 @@ export function For<T, K = T>({ each, children, key, fallback }: ForProps<T, K>)
             currentItems = newItems
           } else {
             // Non-keyed: simple replace all
-            for (const { renderable, marker } of currentItems) {
-              renderable.unmount?.()
+            for (const { cleanup, marker } of currentItems) {
+              cleanup()
               marker.remove()
             }
 
             currentItems = items.map((item, index) => {
               const marker = document.createComment(`item-${index}`)
               const renderable = children(item, index)
-              return { key: index, item, renderable, marker }
+              parent.appendChild(marker)
+              const cleanup = renderable.mount(parent)
+              return { key: index, item, renderable, marker, cleanup }
             })
-
-            for (const { marker, renderable } of currentItems) {
-              container.appendChild(marker)
-              renderable.mount(container)
-            }
           }
         })
       })
 
-      rootDispose = root.dispose
-    },
-    unmount() {
-      // Dispose the effect
-      if (rootDispose) rootDispose()
+      const rootDispose = root.dispose
 
-      // Unmount fallback if showing
-      if (fallbackRenderable) {
-        fallbackRenderable.unmount?.()
-        fallbackRenderable = null
-      }
+      return () => {
+        // Dispose the effect
+        if (rootDispose) rootDispose()
 
-      // Unmount all current items and remove markers
-      for (const { renderable, marker } of currentItems) {
-        renderable.unmount?.()
-        marker.remove()
+        // Unmount fallback if showing
+        if (fallbackCleanup) {
+          fallbackCleanup()
+          fallbackCleanup = null
+          fallbackRenderable = null
+        }
+
+        // Unmount all current items and remove markers
+        for (const { cleanup, marker } of currentItems) {
+          cleanup()
+          marker.remove()
+        }
+        currentItems = []
       }
-      currentItems = []
     }
   }
 }

@@ -8,24 +8,22 @@ interface ShowProps {
 }
 
 export function Show({ when, children, fallback }: ShowProps): Renderable {
-  let container: HTMLElement
-  let currentRenderable: Renderable | null = null
-  let rootDispose: (() => void) | undefined
-
   const getRenderable = (value: Renderable | (() => Renderable)): Renderable => {
     return typeof value === "function" ? value() : value
   }
 
   return {
     mount(parent: HTMLElement) {
-      container = parent
+      let currentRenderable: Renderable | null = null
+      let currentCleanup: (() => void) | null = null
 
       // Create a root scope for the effect
       const root = createRoot(() => {
         effect(() => {
           // Unmount current renderable
-          if (currentRenderable) {
-            currentRenderable.unmount?.()
+          if (currentCleanup) {
+            currentCleanup()
+            currentCleanup = null
             currentRenderable = null
           }
 
@@ -37,21 +35,23 @@ export function Show({ when, children, fallback }: ShowProps): Renderable {
           }
 
           if (currentRenderable) {
-            currentRenderable.mount(container)
+            currentCleanup = currentRenderable.mount(parent)
           }
         })
       })
 
-      rootDispose = root.dispose
-    },
-    unmount() {
-      // Dispose the effect
-      if (rootDispose) rootDispose()
+      const rootDispose = root.dispose
 
-      // Unmount current renderable
-      if (currentRenderable) {
-        currentRenderable.unmount?.()
-        currentRenderable = null
+      return () => {
+        // Dispose the effect
+        if (rootDispose) rootDispose()
+
+        // Unmount current renderable
+        if (currentCleanup) {
+          currentCleanup()
+          currentCleanup = null
+          currentRenderable = null
+        }
       }
     }
   }

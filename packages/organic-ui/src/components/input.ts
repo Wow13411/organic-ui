@@ -2,20 +2,20 @@ import { createRoot } from "../reactivity.js"
 import { bind, bindAssign } from "../utils/bind.js"
 import type { Renderable } from "../types.js"
 
-interface InputProps {
-  type?: string
-  value?: string | number | (() => string | number)
-  onInput?: (value: string) => void
-  onChange?: (value: string) => void
-  placeholder?: string
-  min?: string | number
-  max?: string | number
-  step?: string | number
-  style?: Partial<CSSStyleDeclaration> | (() => Partial<CSSStyleDeclaration>)
-  className?: string | (() => string)
-  id?: string
-  ref?: (el: HTMLInputElement) => void | (() => void)
-}
+type InputProps = Partial<{
+  type: string
+  value: string | number | (() => string | number)
+  onInput: (value: string) => void
+  onChange: (value: string) => void
+  placeholder: string
+  min: string | number
+  max: string | number
+  step: string | number
+  style: Partial<CSSStyleDeclaration> | (() => Partial<CSSStyleDeclaration>)
+  class: string | (() => string)
+  id: string
+  ref: (el: HTMLInputElement) => void | (() => void)
+}>
 
 export function input({ 
   type = "text", 
@@ -27,17 +27,13 @@ export function input({
   max,
   step,
   style, 
-  className, 
+  class: className, 
   id,
   ref 
 }: InputProps): Renderable {
-  let el: HTMLInputElement
-  let cleanup: (() => void) | void
-  let rootDispose: (() => void) | undefined
-
   return {
     mount(parent: HTMLElement) {
-      el = document.createElement("input")
+      const el = document.createElement("input")
       el.type = type
 
       if (placeholder) el.placeholder = placeholder
@@ -57,6 +53,7 @@ export function input({
       parent.appendChild(el)
 
       // Create a root scope for all reactive effects
+      let cleanup: (() => void) | void
       const root = createRoot(() => {
         // Reactive or static value
         if (value != null) {
@@ -65,7 +62,7 @@ export function input({
           })
         }
 
-        // Reactive or static className
+        // Reactive or static class
         if (className != null) {
           bind(className, (value) => {
             el.className = value
@@ -81,12 +78,13 @@ export function input({
         if (ref) cleanup = ref(el)
       })
 
-      rootDispose = root.dispose
-    },
-    unmount() {
-      if (rootDispose) rootDispose()
-      if (cleanup) cleanup()
-      el.remove()
+      const rootDispose = root.dispose
+
+      return () => {
+        if (rootDispose) rootDispose()
+        if (cleanup) cleanup()
+        el.remove()
+      }
     }
   }
 }

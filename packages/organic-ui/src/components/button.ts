@@ -2,30 +2,28 @@ import { effect, createRoot } from "../reactivity.js";
 import { bind, bindAssign } from "../utils/bind.js";
 import type { Renderable } from "../types.js"
 
-interface ButtonProps {
-  text?: string | (() => string)
-  children?: Renderable[]
+type ButtonProps = {
   onClick: () => void
-  style?: Partial<CSSStyleDeclaration> | (() => Partial<CSSStyleDeclaration>)
-  className?: string | (() => string)
-}
+} & Partial<{
+  style: Partial<CSSStyleDeclaration> | (() => Partial<CSSStyleDeclaration>)
+  class: string | (() => string)
+}> & (
+  | { text: string | (() => string); children?: never }
+  | { text?: never; children: Renderable[] }
+  | { text?: never; children?: never }
+)
 
-export function button({ text, children = [], onClick, style, className }: ButtonProps) {
-  let el: HTMLButtonElement
-  let rootDispose: (() => void) | undefined
-  
+export function button({ text, children = [], onClick, style, class: className }: ButtonProps) {
   // Filter out null/undefined children
   const validChildren = children.filter(child => child != null)
 
   return {
     mount(parent: HTMLElement) {
-      el = document.createElement("button")
+      const el = document.createElement("button")
       el.onclick = onClick
       
       // Mount child components if provided
-      for (const child of validChildren) {
-        child.mount(el)
-      }
+      const childCleanups = validChildren.map(child => child.mount(el))
       
       parent.appendChild(el)
 
@@ -38,7 +36,7 @@ export function button({ text, children = [], onClick, style, className }: Butto
           })
         }
 
-        // Reactive or static className (explicit null check to allow empty strings)
+        // Reactive or static class (explicit null check to allow empty strings)
         if (className != null) {
           bind(className, (value) => {
             el.className = value
@@ -51,17 +49,16 @@ export function button({ text, children = [], onClick, style, className }: Butto
         }
       })
 
-      rootDispose = root.dispose
-    },
-    unmount() {
-      if (rootDispose) rootDispose()
-      
-      // Unmount children
-      for (const child of validChildren) {
-        child.unmount?.()
+      const rootDispose = root.dispose
+
+      return () => {
+        if (rootDispose) rootDispose()
+        
+        // Unmount children
+        childCleanups.forEach(cleanup => cleanup())
+        
+        el.remove()
       }
-      
-      el.remove()
     }
   }
 }

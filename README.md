@@ -47,7 +47,7 @@ function Counter({ label }) {
 
 // Mount to DOM
 const root = document.getElementById("app")!
-render(() => [Counter({ label: "Clicks" })], root)
+render(() => Counter({ label: "Clicks" }), root)
 ```
 
 ## Philosophy

@@ -44,6 +44,6 @@ export function bindAssign<T extends object>(
 // Example usage:
 // bind(el, {
 //   text: () => name(),
-//   className: "button",
+//   class: "button",
 //   style: () => ({ color: isActive() ? "blue" : "gray" })
 // })

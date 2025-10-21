@@ -2,28 +2,36 @@ import { createRoot } from "../reactivity.js"
 import { bind, bindAssign } from "../utils/bind.js"
 import type { Renderable } from "../types.js"
 
-interface AnchorProps {
+type AnchorProps = {
   href: string | (() => string)
-  text?: string | (() => string)
-  children?: Renderable[]
-  style?: Partial<CSSStyleDeclaration> | (() => Partial<CSSStyleDeclaration>)
-  className?: string | (() => string)
-  onClick?: (e: MouseEvent) => void
-  target?: string
-  rel?: string
-}
+} & Partial<{
+  style: Partial<CSSStyleDeclaration> | (() => Partial<CSSStyleDeclaration>)
+  class: string | (() => string)
+  onClick: (e: MouseEvent) => void
+  target: string
+  rel: string
+}> & (
+  | { text: string | (() => string); children?: never }
+  | { text?: never; children: Renderable[] }
+  | { text?: never; children?: never }
+)
 
-export function a({ href, text, children = [], style, className, onClick, target, rel }: AnchorProps) {
-  let el: HTMLAnchorElement
-  let rootDispose: (() => void) | undefined
-
+export function a({ href, text, children = [], style, class: className, onClick, target, rel }: AnchorProps) {
   return {
     mount(parent: HTMLElement) {
-      el = document.createElement("a")
+      const el = document.createElement("a")
 
       // Set target and rel attributes
       if (target) el.target = target
       if (rel) el.rel = rel
+
+      // Click handler
+      if (onClick) {
+        el.onclick = onClick
+      }
+
+      // Mount children
+      const childCleanups = children.map(child => child.mount(el))
 
       parent.appendChild(el)
 
@@ -41,7 +49,7 @@ export function a({ href, text, children = [], style, className, onClick, target
           })
         }
 
-        // Reactive or static className
+        // Reactive or static class
         if (className != null) {
           bind(className, (value) => {
             el.className = value
@@ -54,24 +62,13 @@ export function a({ href, text, children = [], style, className, onClick, target
         }
       })
 
-      rootDispose = root.dispose
+      const rootDispose = root.dispose
 
-      // Click handler
-      if (onClick) {
-        el.onclick = onClick
+      return () => {
+        if (rootDispose) rootDispose()
+        childCleanups.forEach(cleanup => cleanup())
+        el.remove()
       }
-
-      // Mount children
-      for (const child of children) {
-        child.mount(el)
-      }
-
-      parent.appendChild(el)
-    },
-    unmount() {
-      if (rootDispose) rootDispose()
-      for (const child of children) child.unmount?.()
-      el.remove()
     }
   }
 }

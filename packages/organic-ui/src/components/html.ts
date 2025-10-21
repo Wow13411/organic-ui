@@ -17,13 +17,12 @@ type HtmlValue = string | number | (() => string | number)
  * html`<p>Count: ${count}</p>`
  */
 export function html(strings: TemplateStringsArray, ...values: HtmlValue[]): Renderable {
-  let elements: Node[] = []
-  let marker: Comment | null = null
-
   return {
     mount(parent: HTMLElement) {
+      let elements: Node[] = []
+      
       // Create a marker comment node to track insertion position
-      marker = document.createComment("html-marker")
+      const marker = document.createComment("html-marker")
       parent.appendChild(marker)
 
       // Use effect to handle reactive updates
@@ -55,14 +54,14 @@ export function html(strings: TemplateStringsArray, ...values: HtmlValue[]): Ren
           marker.parentNode.insertBefore(fragment, marker)
         }
       })
-    },
-    unmount() {
-      elements.forEach(el => el.parentNode?.removeChild(el))
-      elements = []
-      if (marker && marker.parentNode) {
-        marker.parentNode.removeChild(marker)
+
+      return () => {
+        elements.forEach(el => el.parentNode?.removeChild(el))
+        elements = []
+        if (marker.parentNode) {
+          marker.parentNode.removeChild(marker)
+        }
       }
-      marker = null
     }
   }
 }

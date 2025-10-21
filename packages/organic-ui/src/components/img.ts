@@ -1,23 +1,21 @@
 import type { Renderable } from "../types.js"
 
-interface ImgProps {
+type ImgProps = {
   src: string
-  alt?: string
-  style?: Partial<CSSStyleDeclaration>
-  className?: string
-  width?: string | number
-  height?: string | number
-  onClick?: () => void
-  ref?: (el: HTMLImageElement) => void | (() => void)
-}
+} & Partial<{
+  alt: string
+  style: Partial<CSSStyleDeclaration>
+  class: string
+  width: string | number
+  height: string | number
+  onClick: () => void
+  ref: (el: HTMLImageElement) => void | (() => void)
+}>
 
-export function img({ src, alt = "", style, className, width, height, onClick, ref }: ImgProps): Renderable {
-  let el: HTMLImageElement
-  let cleanup: (() => void) | void
-
+export function img({ src, alt = "", style, class: className, width, height, onClick, ref }: ImgProps): Renderable {
   return {
     mount(parent: HTMLElement) {
-      el = document.createElement("img")
+      const el = document.createElement("img")
 
       // Set source and alt
       el.src = src
@@ -25,7 +23,7 @@ export function img({ src, alt = "", style, className, width, height, onClick, r
 
       // Apply class and inline styles
       if (className) el.className = className
-      Object.assign(el.style, style)
+      if (style) Object.assign(el.style, style)
 
       // Set dimensions if provided
       if (width !== undefined) {
@@ -41,12 +39,13 @@ export function img({ src, alt = "", style, className, width, height, onClick, r
       parent.appendChild(el)
 
       // Call ref callback after mounting
-      if (ref) cleanup = ref(el)
-    },
-    unmount() {
-      // Call cleanup if provided
-      if (cleanup) cleanup()
-      el.remove()
+      const cleanup = ref ? ref(el) : undefined
+
+      return () => {
+        // Call cleanup if provided
+        if (cleanup) cleanup()
+        el.remove()
+      }
     }
   }
 }
