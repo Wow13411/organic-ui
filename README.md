@@ -40,7 +40,7 @@ function Counter({ label }) {
   return div({
     children: [
       p({ text: () => `${label}: ${count()}` }),
-      button({ text: () => "+", onClick: () => setCount(count() + 1) })
+      button({ text: "+", onClick: () => setCount(count() + 1) })
     ]
   })
 }
