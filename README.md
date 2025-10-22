@@ -1,5 +1,7 @@
 # organic-ui
 
+[![Test](https://github.com/pavi2410/organic-ui/actions/workflows/test.yml/badge.svg)](https://github.com/pavi2410/organic-ui/actions/workflows/test.yml)
+
 A lightweight reactive UI framework with fine-grained reactivity and declarative components.
 
 ## Features
