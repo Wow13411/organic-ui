@@ -29,10 +29,11 @@ export function p({ text, style, class: className }: PProps) {
       })
 
       rootDispose = root.dispose
-    },
-    unmount() {
-      if (rootDispose) rootDispose()
-      el.remove()
+
+      return () => {
+        if (rootDispose) rootDispose()
+        el.remove()
+      }
     }
   }
 }

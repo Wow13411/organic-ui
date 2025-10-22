@@ -1,4 +1,4 @@
-import { effect, createRoot } from "../reactivity.js";
+import { createRoot } from "../reactivity.js";
 import { bind, bindAssign } from "../utils/bind.js";
 import type { Renderable } from "../types.js"
 

@@ -1,0 +1,33 @@
+{
+  "name": "organic-components",
+  "version": "0.1.0",
+  "description": "A component library built on organic-ui and Tailwind CSS",
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./styles.css": "./src/styles.css"
+  },
+  "scripts": {
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage"
+  },
+  "devDependencies": {
+    "@vitest/ui": "^2.1.8",
+    "happy-dom": "^15.11.7",
+    "typescript": "~5.9.3",
+    "vite": "^5.0.0",
+    "vitest": "^2.1.8"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "cva": "1.0.0-beta.4",
+    "organic-ui": "workspace:*",
+    "tailwind-merge": "^2.6.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.18.2"
+}
