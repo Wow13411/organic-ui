@@ -22,7 +22,7 @@ export function CopyButton(code: string) {
   return button({
     text: buttonText,
     onClick: handleCopy,
-    className: "code-copy-button",
+    class: "code-copy-button",
     style: () => ({ background: buttonBg() })
   })
 }

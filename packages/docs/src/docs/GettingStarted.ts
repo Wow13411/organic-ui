@@ -1,6 +1,5 @@
 import { div } from "organic-ui/components"
 import { CodeViewer } from "../components/CodeViewer.js"
-import "./docs.css"
 
 export function GettingStarted() {
 
@@ -8,18 +7,18 @@ export function GettingStarted() {
     children: [
       div({
         text: "Getting Started",
-        className: "docs-page-title"
+        class: "docs-page-title"
       }),
       div({
         id: "installation",
         text: "Installation",
-        className: "docs-section-title"
+        class: "docs-section-title"
       }),
       CodeViewer({ code: "pnpm install organic-ui" }),
       div({
         id: "quick-example",
         text: "Quick Example",
-        className: "docs-section-title"
+        class: "docs-section-title"
       }),
       CodeViewer({ 
         code: `import { render } from "organic-ui/renderer"
@@ -33,7 +32,7 @@ function Counter({ label }) {
     children: [
       p({ text: () => \`\${label}: \${count()}\` }),
       button({ 
-        text: () => "+", 
+        text: "+", 
         onClick: () => setCount(count() + 1) 
       })
     ]
@@ -41,7 +40,7 @@ function Counter({ label }) {
 }
 
 const root = document.getElementById("app")!
-render(() => [Counter({ label: "Clicks" })], root)`,
+render(() => Counter({ label: "Clicks" }), root)`,
         language: "typescript"
       })
     ]

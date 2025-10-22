@@ -18,6 +18,7 @@
     }
   },
   "dependencies": {
-    "organic-ui": "workspace:*"
+    "organic-ui": "workspace:*",
+    "organic-components": "workspace:*"
   }
 }

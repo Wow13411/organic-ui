@@ -1,6 +1,5 @@
 import { div, p } from "organic-ui/components"
 import { CodeViewer } from "../components/CodeViewer.js"
-import "./docs.css"
 
 export function Reactivity() {
 
@@ -8,16 +7,16 @@ export function Reactivity() {
     children: [
       div({
         text: "Reactivity",
-        className: "docs-page-title"
+        class: "docs-page-title"
       }),
       div({
         id: "state",
         text: "state()",
-        className: "docs-section-title"
+        class: "docs-section-title"
       }),
       p({
-        text: () => "Create reactive state that automatically updates the UI when changed.",
-        className: "docs-text"
+        text: "Create reactive state that automatically updates the UI when changed.",
+        class: "docs-text"
       }),
       CodeViewer({
         code: `const [count, setCount] = state(0)
@@ -35,11 +34,11 @@ setCount(prev => prev + 1)`,
       div({
         id: "effect",
         text: "effect()",
-        className: "docs-section-title"
+        class: "docs-section-title"
       }),
       p({
-        text: () => "Run side effects that automatically re-run when dependencies change.",
-        className: "docs-text"
+        text: "Run side effects that automatically re-run when dependencies change.",
+        class: "docs-text"
       }),
       CodeViewer({
         code: `const [name, setName] = state("World")
@@ -52,8 +51,8 @@ setName("organic-ui")  // Logs: "Hello, organic-ui!"`,
         language: "typescript"
       }),
       p({
-        text: () => "Effects can return a cleanup function that runs before the effect re-runs or when the component unmounts:",
-        className: "docs-text"
+        text: "Effects can return a cleanup function that runs before the effect re-runs or when the component unmounts:",
+        class: "docs-text"
       }),
       CodeViewer({
         code: `const [delay, setDelay] = state(1000)
@@ -74,11 +73,11 @@ effect(() => {
       div({
         id: "memo",
         text: "memo()",
-        className: "docs-section-title"
+        class: "docs-section-title"
       }),
       p({
-        text: () => "Create memoized computed values that only recompute when dependencies change.",
-        className: "docs-text"
+        text: "Create memoized computed values that only recompute when dependencies change.",
+        class: "docs-text"
       }),
       CodeViewer({
         code: `const [firstName, setFirstName] = state("John")
@@ -99,8 +98,8 @@ console.log(fullName())  // "Jane Doe"`,
         language: "typescript"
       }),
       p({
-        text: () => "Memos are especially useful for expensive computations:",
-        className: "docs-text"
+        text: "Memos are especially useful for expensive computations:",
+        class: "docs-text"
       }),
       CodeViewer({
         code: `const [items, setItems] = state([1, 2, 3, 4, 5])
@@ -118,10 +117,10 @@ console.log(memoizedSum())  // Cached: 15 (no recalculation!)`,
         language: "typescript"
       }),
       div({
-        className: "docs-note",
+        class: "docs-note",
         children: [
           p({
-            text: () => "💡 See it in action:",
+            text: "💡 See it in action:",
             style: {
               margin: "0 0 8px 0",
               fontWeight: "600",
@@ -129,7 +128,7 @@ console.log(memoizedSum())  // Cached: 15 (no recalculation!)`,
             }
           }),
           p({
-            text: () => "Check out the interactive Memo example in the Examples section to see how memoized values only recompute when their dependencies change!",
+            text: "Check out the interactive Memo example in the Examples section to see how memoized values only recompute when their dependencies change!",
             style: {
               margin: "0",
               fontSize: "14px",

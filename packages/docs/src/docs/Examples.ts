@@ -6,7 +6,6 @@ import { HtmlDemo } from "../components/HtmlDemo.js"
 import { Metronome } from "../components/Metronome.js"
 import { MemoExample } from "../components/MemoExample.js"
 import { ExampleTabs } from "../components/ExampleTabs.js"
-import "./docs.css"
 
 import counterCode from "../components/Counter.ts?raw"
 import accordionCode from "../components/Accordion.ts?raw"
@@ -20,13 +19,13 @@ export function Examples() {
     children: [
       div({
         text: "Examples",
-        className: "docs-page-title"
+        class: "docs-page-title"
       }),
       
       div({
         id: "counter",
         text: "Counter",
-        className: "docs-section-title"
+        class: "docs-section-title"
       }),
       ExampleTabs({
         preview: () => Counter({ label: "Clicks" }),
@@ -36,7 +35,7 @@ export function Examples() {
       div({
         id: "accordion",
         text: "Accordion",
-        className: "docs-section-title"
+        class: "docs-section-title"
       }),
       ExampleTabs({
         preview: () => div({
@@ -57,7 +56,7 @@ export function Examples() {
       div({
         id: "html-demo",
         text: "HTML Component Demo",
-        className: "docs-section-title"
+        class: "docs-section-title"
       }),
       ExampleTabs({
         preview: () => HtmlDemo(),
@@ -67,7 +66,7 @@ export function Examples() {
       div({
         id: "todo-list",
         text: "Todo List",
-        className: "docs-section-title"
+        class: "docs-section-title"
       }),
       ExampleTabs({
         preview: () => TodoList(),
@@ -77,7 +76,7 @@ export function Examples() {
       div({
         id: "metronome",
         text: "Metronome (Effect Cleanup)",
-        className: "docs-section-title"
+        class: "docs-section-title"
       }),
       ExampleTabs({
         preview: () => Metronome(),
@@ -87,7 +86,7 @@ export function Examples() {
       div({
         id: "memo-example",
         text: "Memo (Computed Values)",
-        className: "docs-section-title"
+        class: "docs-section-title"
       }),
       ExampleTabs({
         preview: () => MemoExample(),

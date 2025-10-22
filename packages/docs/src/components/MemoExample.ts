@@ -47,7 +47,7 @@ export function MemoExample() {
       }),
       
       p({
-        text: () => "Open the console to see when memos recompute!",
+        text: "Open the console to see when memos recompute!",
         style: {
           fontSize: "14px",
           color: "#666",

@@ -45,7 +45,7 @@ export function TodoList() {
         children: [
           For({
             each: items,
-            key: (item) => item.id,
+            key: (item, _index) => item.id,
             children: (item) => div({
               style: {
                 display: "flex",
@@ -62,13 +62,13 @@ export function TodoList() {
                   style: { flex: "1" }
                 }),
                 button({
-                  text: () => "Remove",
+                  text: "Remove",
                   onClick: () => removeItem(item.id)
                 })
               ]
             }),
             fallback: p({
-              text: () => "No tasks yet. Add one to get started!",
+              text: "No tasks yet. Add one to get started!",
               style: {
                 color: "#999",
                 fontStyle: "italic"
@@ -78,7 +78,7 @@ export function TodoList() {
         ]
       }),
       button({
-        text: () => "Add Task",
+        text: "Add Task",
         onClick: addItem
       })
     ]

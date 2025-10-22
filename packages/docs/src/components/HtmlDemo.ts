@@ -52,7 +52,7 @@ export function HtmlDemo() {
         },
         children: [
           button({
-            text: () => "Change Name",
+            text: "Change Name",
             onClick: () => {
               currentIndex = (currentIndex + 1) % names.length
               setName(names[currentIndex])
@@ -67,7 +67,7 @@ export function HtmlDemo() {
             }
           }),
           button({
-            text: () => "Increment",
+            text: "Increment",
             onClick: () => setCount(c => c + 1),
             style: {
               padding: "8px 16px",
@@ -79,7 +79,7 @@ export function HtmlDemo() {
             }
           }),
           button({
-            text: () => "Reset",
+            text: "Reset",
             onClick: () => {
               setCount(0)
               currentIndex = 0

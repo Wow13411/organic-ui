@@ -6,6 +6,14 @@ interface BenchmarkResult {
   organicUI: number
   vanillaJS: number
   ratio: number // organicUI / vanillaJS (lower is better)
+  organicMemory: number // Memory used in KB
+  vanillaMemory: number // Memory used in KB
+  memoryRatio: number // organicMemory / vanillaMemory (lower is better)
+}
+
+interface MeasurementResult {
+  duration: number
+  memory: number // in KB
 }
 
 interface BenchmarkTest {
@@ -14,8 +22,8 @@ interface BenchmarkTest {
   description: string
   warmupIterations: number
   runIterations: number
-  runOrganic: () => Promise<number>
-  runVanilla: () => Promise<number>
+  runOrganic: () => Promise<MeasurementResult>
+  runVanilla: () => Promise<MeasurementResult>
 }
 
 function formatNumber(num: number): string {
@@ -97,7 +105,7 @@ function calculateWeightedGeometricMean(results: BenchmarkResult[]): number {
   return ratio
 }
 
-async function measure(fn: () => void, warmup: number, iterations: number): Promise<number> {
+async function measure(fn: () => void, warmup: number, iterations: number): Promise<MeasurementResult> {
   // Warmup runs
   for (let i = 0; i < warmup; i++) {
     fn()
@@ -113,7 +121,8 @@ async function measure(fn: () => void, warmup: number, iterations: number): Prom
   await new Promise(resolve => setTimeout(resolve, 50))
   
   // Collect measurements from multiple iterations
-  const measurements: number[] = []
+  const durationMeasurements: number[] = []
+  const memoryMeasurements: number[] = []
   
   for (let i = 0; i < iterations; i++) {
     // Force GC before each measurement if available
@@ -123,24 +132,41 @@ async function measure(fn: () => void, warmup: number, iterations: number): Prom
     
     await new Promise(resolve => setTimeout(resolve, 10))
     
+    // Measure memory before
+    const memoryBefore = (performance as any).memory?.usedJSHeapSize || 0
+    
     const start = performance.now()
     fn()
     const end = performance.now()
     
-    measurements.push(end - start)
+    // Measure memory after
+    const memoryAfter = (performance as any).memory?.usedJSHeapSize || 0
+    const memoryUsed = Math.max(0, memoryAfter - memoryBefore) / 1024 // Convert to KB
+    
+    durationMeasurements.push(end - start)
+    memoryMeasurements.push(memoryUsed)
   }
   
-  // Return median value (following js-framework-benchmark spec)
-  measurements.sort((a, b) => a - b)
-  const mid = Math.floor(measurements.length / 2)
+  // Return median values (following js-framework-benchmark spec)
+  durationMeasurements.sort((a, b) => a - b)
+  memoryMeasurements.sort((a, b) => a - b)
   
-  if (measurements.length % 2 === 0) {
+  const mid = Math.floor(durationMeasurements.length / 2)
+  
+  let duration: number
+  let memory: number
+  
+  if (durationMeasurements.length % 2 === 0) {
     // Even number of measurements: average of two middle values
-    return (measurements[mid - 1] + measurements[mid]) / 2
+    duration = (durationMeasurements[mid - 1] + durationMeasurements[mid]) / 2
+    memory = (memoryMeasurements[mid - 1] + memoryMeasurements[mid]) / 2
   } else {
     // Odd number of measurements: middle value
-    return measurements[mid]
+    duration = durationMeasurements[mid]
+    memory = memoryMeasurements[mid]
   }
+  
+  return { duration, memory }
 }
 
 // Data for benchmarks
@@ -167,14 +193,14 @@ export function Benchmarks() {
     {
       id: 'create-1000',
       name: 'Create 1,000 rows',
-      description: 'Duration for creating 1,000 rows (median of 3 runs)',
-      warmupIterations: 0,
-      runIterations: 3,
+      description: 'Duration for creating 1,000 rows (10 warmup, median of 10 runs)',
+      warmupIterations: 10,
+      runIterations: 10,
       runOrganic: async () => {
         const container = document.createElement('div')
         document.body.appendChild(container)
         
-        const duration = await measure(() => {
+        const result = await measure(() => {
           const [data] = state(buildData(1000))
           const list = For({
             each: data,
@@ -182,18 +208,18 @@ export function Benchmarks() {
               text: () => `${item.id} - ${item.label}`
             })
           })
-          list.mount(container)
-          list.unmount()
-        }, 0, 1)
+          const cleanup = list.mount(container)
+          cleanup()
+        }, 10, 10)
         
         document.body.removeChild(container)
-        return duration
+        return result
       },
       runVanilla: async () => {
         const container = document.createElement('div')
         document.body.appendChild(container)
         
-        const duration = await measure(() => {
+        const result = await measure(() => {
           const data = buildData(1000)
           container.innerHTML = ''
           data.forEach(item => {
@@ -202,18 +228,18 @@ export function Benchmarks() {
             container.appendChild(el)
           })
           container.innerHTML = ''
-        }, 0, 1)
+        }, 10, 10)
         
         document.body.removeChild(container)
-        return duration
+        return result
       }
     },
     {
       id: 'replace-all',
       name: 'Replace all rows',
-      description: 'Duration for replacing all 1,000 rows (5 warmup, median of 3 runs)',
-      warmupIterations: 5,
-      runIterations: 3,
+      description: 'Duration for replacing all 1,000 rows (15 warmup, median of 10 runs)',
+      warmupIterations: 15,
+      runIterations: 10,
       runOrganic: async () => {
         const container = document.createElement('div')
         document.body.appendChild(container)
@@ -223,15 +249,15 @@ export function Benchmarks() {
           each: data,
           children: (item) => div({ text: () => `${item.id} - ${item.label}` })
         })
-        list.mount(container)
+        const cleanup = list.mount(container)
         
-        const duration = await measure(() => {
+        const result = await measure(() => {
           setData(buildData(1000))
-        }, 5, 1)
+        }, 15, 10)
         
-        list.unmount()
+        cleanup()
         document.body.removeChild(container)
-        return duration
+        return result
       },
       runVanilla: async () => {
         const container = document.createElement('div')
@@ -248,21 +274,21 @@ export function Benchmarks() {
         }
         render()
         
-        const duration = await measure(() => {
+        const result = await measure(() => {
           data = buildData(1000)
           render()
-        }, 5, 1)
+        }, 15, 10)
         
         document.body.removeChild(container)
-        return duration
+        return result
       }
     },
     {
       id: 'partial-update',
       name: 'Partial update',
-      description: 'Duration for updating every 10th row in 10,000 rows (5 warmup, median of 3 runs)',
-      warmupIterations: 5,
-      runIterations: 3,
+      description: 'Duration for updating every 10th row in 10,000 rows (15 warmup, median of 10 runs)',
+      warmupIterations: 15,
+      runIterations: 10,
       runOrganic: async () => {
         const container = document.createElement('div')
         document.body.appendChild(container)
@@ -272,17 +298,17 @@ export function Benchmarks() {
           each: data,
           children: (item) => div({ text: () => `${item.id} - ${item.label}` })
         })
-        list.mount(container)
+        const cleanup = list.mount(container)
         
-        const duration = await measure(() => {
+        const result = await measure(() => {
           setData(prev => prev.map((item, idx) => 
             idx % 10 === 0 ? { ...item, label: item.label + ' !!!' } : item
           ))
-        }, 5, 1)
+        }, 15, 10)
         
-        list.unmount()
+        cleanup()
         document.body.removeChild(container)
-        return duration
+        return result
       },
       runVanilla: async () => {
         const container = document.createElement('div')
@@ -297,23 +323,23 @@ export function Benchmarks() {
           elements.push(el)
         })
         
-        const duration = await measure(() => {
+        const result = await measure(() => {
           for (let i = 0; i < data.length; i += 10) {
             data[i].label += ' !!!'
             elements[i].textContent = `${data[i].id} - ${data[i].label}`
           }
-        }, 5, 1)
+        }, 15, 10)
         
         document.body.removeChild(container)
-        return duration
+        return result
       }
     },
     {
       id: 'swap-rows',
       name: 'Swap rows',
-      description: 'Duration for swapping 2 rows in a 1,000 row table (5 warmup, median of 3 runs)',
-      warmupIterations: 5,
-      runIterations: 3,
+      description: 'Duration for swapping 2 rows in a 1,000 row table (15 warmup, median of 10 runs)',
+      warmupIterations: 15,
+      runIterations: 10,
       runOrganic: async () => {
         const container = document.createElement('div')
         document.body.appendChild(container)
@@ -323,9 +349,9 @@ export function Benchmarks() {
           each: data,
           children: (item) => div({ text: () => `${item.id} - ${item.label}` })
         })
-        list.mount(container)
+        const cleanup = list.mount(container)
         
-        const duration = await measure(() => {
+        const result = await measure(() => {
           setData(prev => {
             const arr = [...prev]
             if (arr.length > 998) {
@@ -335,11 +361,11 @@ export function Benchmarks() {
             }
             return arr
           })
-        }, 5, 1)
+        }, 15, 10)
         
-        list.unmount()
+        cleanup()
         document.body.removeChild(container)
-        return duration
+        return result
       },
       runVanilla: async () => {
         const container = document.createElement('div')
@@ -354,7 +380,7 @@ export function Benchmarks() {
           elements.push(el)
         })
         
-        const duration = await measure(() => {
+        const result = await measure(() => {
           if (data.length > 998) {
             const tmp = data[1]
             data[1] = data[998]
@@ -363,18 +389,18 @@ export function Benchmarks() {
             elements[1].textContent = `${data[1].id} - ${data[1].label}`
             elements[998].textContent = `${data[998].id} - ${data[998].label}`
           }
-        }, 5, 1)
+        }, 15, 10)
         
         document.body.removeChild(container)
-        return duration
+        return result
       }
     },
     {
       id: 'remove-row',
       name: 'Remove row',
-      description: 'Duration for removing a row from a 1,000 row table (5 warmup, median of 3 runs)',
-      warmupIterations: 5,
-      runIterations: 3,
+      description: 'Duration for removing a row from a 1,000 row table (15 warmup, median of 10 runs)',
+      warmupIterations: 15,
+      runIterations: 10,
       runOrganic: async () => {
         const container = document.createElement('div')
         document.body.appendChild(container)
@@ -384,15 +410,15 @@ export function Benchmarks() {
           each: data,
           children: (item) => div({ text: () => `${item.id} - ${item.label}` })
         })
-        list.mount(container)
+        const cleanup = list.mount(container)
         
-        const duration = await measure(() => {
+        const result = await measure(() => {
           setData(prev => prev.filter((_, idx) => idx !== 1))
-        }, 5, 1)
+        }, 15, 10)
         
-        list.unmount()
+        cleanup()
         document.body.removeChild(container)
-        return duration
+        return result
       },
       runVanilla: async () => {
         const container = document.createElement('div')
@@ -409,43 +435,43 @@ export function Benchmarks() {
         }
         render()
         
-        const duration = await measure(() => {
+        const result = await measure(() => {
           data = data.filter((_, idx) => idx !== 1)
           render()
-        }, 5, 1)
+        }, 15, 10)
         
         document.body.removeChild(container)
-        return duration
+        return result
       }
     },
     {
       id: 'create-10000',
       name: 'Create 10,000 rows',
-      description: 'Duration for creating 10,000 rows (median of 3 runs)',
-      warmupIterations: 0,
-      runIterations: 3,
+      description: 'Duration for creating 10,000 rows (5 warmup, median of 10 runs)',
+      warmupIterations: 5,
+      runIterations: 10,
       runOrganic: async () => {
         const container = document.createElement('div')
         document.body.appendChild(container)
         
-        const duration = await measure(() => {
+        const result = await measure(() => {
           const [data] = state(buildData(10000))
           const list = For({
             each: data,
             children: (item) => div({ text: () => `${item.id} - ${item.label}` })
           })
-          list.mount(container)
-          list.unmount()
-        }, 0, 1)
+          const cleanup = list.mount(container)
+          cleanup()
+        }, 5, 10)
         
         document.body.removeChild(container)
-        return duration
+        return result
       },
       runVanilla: async () => {
         const container = document.createElement('div')
         document.body.appendChild(container)
         
-        const duration = await measure(() => {
+        const result = await measure(() => {
           const data = buildData(10000)
           container.innerHTML = ''
           data.forEach(item => {
@@ -454,18 +480,18 @@ export function Benchmarks() {
             container.appendChild(el)
           })
           container.innerHTML = ''
-        }, 0, 1)
+        }, 5, 10)
         
         document.body.removeChild(container)
-        return duration
+        return result
       }
     },
     {
       id: 'append-1000',
       name: 'Append 1,000 to 10,000 rows',
-      description: 'Duration for appending 1,000 rows to a table of 10,000 rows (median of 3 runs)',
-      warmupIterations: 0,
-      runIterations: 3,
+      description: 'Duration for appending 1,000 rows to a table of 10,000 rows (10 warmup, median of 10 runs)',
+      warmupIterations: 10,
+      runIterations: 10,
       runOrganic: async () => {
         const container = document.createElement('div')
         document.body.appendChild(container)
@@ -475,15 +501,15 @@ export function Benchmarks() {
           each: data,
           children: (item) => div({ text: () => `${item.id} - ${item.label}` })
         })
-        list.mount(container)
+        const cleanup = list.mount(container)
         
-        const duration = await measure(() => {
+        const result = await measure(() => {
           setData(prev => [...prev, ...buildData(1000)])
-        }, 0, 1)
+        }, 10, 10)
         
-        list.unmount()
+        cleanup()
         document.body.removeChild(container)
-        return duration
+        return result
       },
       runVanilla: async () => {
         const container = document.createElement('div')
@@ -496,25 +522,25 @@ export function Benchmarks() {
           container.appendChild(el)
         })
         
-        const duration = await measure(() => {
+        const result = await measure(() => {
           const newData = buildData(1000)
           newData.forEach(item => {
             const el = document.createElement('div')
             el.textContent = `${item.id} - ${item.label}`
             container.appendChild(el)
           })
-        }, 0, 1)
+        }, 10, 10)
         
         document.body.removeChild(container)
-        return duration
+        return result
       }
     },
     {
       id: 'clear-10000',
       name: 'Clear 10,000 rows',
-      description: 'Duration to clear the table filled with 10,000 rows (median of 3 runs)',
-      warmupIterations: 0,
-      runIterations: 3,
+      description: 'Duration to clear the table filled with 10,000 rows (10 warmup, median of 10 runs)',
+      warmupIterations: 10,
+      runIterations: 10,
       runOrganic: async () => {
         const container = document.createElement('div')
         document.body.appendChild(container)
@@ -524,15 +550,15 @@ export function Benchmarks() {
           each: data,
           children: (item) => div({ text: () => `${item.id} - ${item.label}` })
         })
-        list.mount(container)
+        const cleanup = list.mount(container)
         
-        const duration = await measure(() => {
+        const result = await measure(() => {
           setData([])
-        }, 0, 1)
+        }, 10, 10)
         
-        list.unmount()
+        cleanup()
         document.body.removeChild(container)
-        return duration
+        return result
       },
       runVanilla: async () => {
         const container = document.createElement('div')
@@ -545,12 +571,12 @@ export function Benchmarks() {
           container.appendChild(el)
         })
         
-        const duration = await measure(() => {
+        const result = await measure(() => {
           container.innerHTML = ''
-        }, 0, 1)
+        }, 10, 10)
         
         document.body.removeChild(container)
-        return duration
+        return result
       }
     }
   ]
@@ -561,12 +587,12 @@ export function Benchmarks() {
     await new Promise(resolve => setTimeout(resolve, 100))
     
     try {
-      const organicDuration = await benchmark.runOrganic()
-      const vanillaDuration = await benchmark.runVanilla()
+      const organicResult = await benchmark.runOrganic()
+      const vanillaResult = await benchmark.runVanilla()
       
-      // Calculate ratio with epsilon for zero measurements
-      const organicTime = organicDuration <= 0 ? EPSILON : organicDuration
-      const vanillaTime = vanillaDuration <= 0 ? EPSILON : vanillaDuration
+      // Calculate duration ratio with epsilon for zero measurements
+      const organicTime = organicResult.duration <= 0 ? EPSILON : organicResult.duration
+      const vanillaTime = vanillaResult.duration <= 0 ? EPSILON : vanillaResult.duration
       
       let ratio = organicTime / vanillaTime
       
@@ -575,11 +601,25 @@ export function Benchmarks() {
         ratio = 0
       }
       
+      // Calculate memory ratio with epsilon for zero measurements
+      const organicMem = organicResult.memory <= 0 ? EPSILON : organicResult.memory
+      const vanillaMem = vanillaResult.memory <= 0 ? EPSILON : vanillaResult.memory
+      
+      let memoryRatio = organicMem / vanillaMem
+      
+      // Handle edge cases
+      if (!isFinite(memoryRatio) || isNaN(memoryRatio)) {
+        memoryRatio = 0
+      }
+      
       const result: BenchmarkResult = {
         name: benchmark.name,
-        organicUI: organicDuration,
-        vanillaJS: vanillaDuration,
-        ratio
+        organicUI: organicResult.duration,
+        vanillaJS: vanillaResult.duration,
+        ratio,
+        organicMemory: organicResult.memory,
+        vanillaMemory: vanillaResult.memory,
+        memoryRatio
       }
       
       setResults(prev => [...prev.filter(r => r.name !== result.name), result])
@@ -688,7 +728,7 @@ export function Benchmarks() {
               div({
                 style: {
                   display: "grid",
-                  gridTemplateColumns: "2fr 1fr 1fr 1fr 100px",
+                  gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr 1fr 1fr 100px",
                   gap: "10px",
                   padding: "15px",
                   background: "#f8f9fa",
@@ -700,7 +740,10 @@ export function Benchmarks() {
                   div({ text: "Benchmark" }),
                   div({ text: "Vanilla JS (ms)" }),
                   div({ text: "Organic UI (ms)" }),
-                  div({ text: "Ratio" }),
+                  div({ text: "Duration Ratio" }),
+                  div({ text: "Vanilla JS (KB)" }),
+                  div({ text: "Organic UI (KB)" }),
+                  div({ text: "Memory Ratio" }),
                   div({ text: "Action" })
                 ]
               }),
@@ -712,7 +755,7 @@ export function Benchmarks() {
                 return div({
                   style: {
                     display: "grid",
-                    gridTemplateColumns: "2fr 1fr 1fr 1fr 100px",
+                    gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr 1fr 1fr 100px",
                     gap: "10px",
                     padding: "15px",
                     borderTop: "1px solid #e0e0e0",
@@ -743,6 +786,25 @@ export function Benchmarks() {
                         color: result() ? getRatioColor(result()!.ratio) : "#ccc"
                       })
                     }),
+                    div({ 
+                      text: () => result() ? formatNumber(result()!.vanillaMemory) : "-",
+                      style: () => ({
+                        color: result() ? "#2c3e50" : "#ccc"
+                      })
+                    }),
+                    div({ 
+                      text: () => result() ? formatNumber(result()!.organicMemory) : "-",
+                      style: () => ({
+                        color: result() ? "#2c3e50" : "#ccc"
+                      })
+                    }),
+                    div({ 
+                      text: () => result() ? formatRatio(result()!.memoryRatio) : "-",
+                      style: () => ({
+                        fontWeight: "600",
+                        color: result() ? getRatioColor(result()!.memoryRatio) : "#ccc"
+                      })
+                    }),
                     button({
                       text: () => isRunning() ? "..." : "Run",
                       onClick: () => runBenchmark(benchmark),
@@ -764,7 +826,7 @@ export function Benchmarks() {
               div({
                 style: () => ({
                   display: results().length === benchmarks.length ? "grid" : "none",
-                  gridTemplateColumns: "2fr 1fr 1fr 1fr 100px",
+                  gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr 1fr 1fr 100px",
                   gap: "10px",
                   padding: "15px",
                   borderTop: "2px solid #2c3e50",
@@ -780,7 +842,7 @@ export function Benchmarks() {
                   }),
                   div({ 
                     text: () => {
-                      // Calculate WGM for Vanilla JS
+                      // Calculate WGM for Vanilla JS duration
                       let vanillaWeightedLogSum = 0
                       let totalWeight = 0
                       
@@ -798,7 +860,7 @@ export function Benchmarks() {
                   }),
                   div({ 
                     text: () => {
-                      // Calculate WGM for Organic UI
+                      // Calculate WGM for Organic UI duration
                       let organicWeightedLogSum = 0
                       let totalWeight = 0
                       
@@ -818,13 +880,53 @@ export function Benchmarks() {
                     text: "-",
                     style: { color: "#999" }
                   }),
+                  div({ 
+                    text: () => {
+                      // Calculate WGM for Vanilla JS memory
+                      let vanillaWeightedLogSum = 0
+                      let totalWeight = 0
+                      
+                      for (const result of results()) {
+                        const weight = benchmarkWeights[result.name] || 0.2
+                        const mem = result.vanillaMemory <= 0 ? EPSILON : result.vanillaMemory
+                        vanillaWeightedLogSum += weight * Math.log(mem)
+                        totalWeight += weight
+                      }
+                      
+                      const vanillaWGM = Math.exp(vanillaWeightedLogSum / totalWeight)
+                      return formatNumber(vanillaWGM)
+                    },
+                    style: { color: "#2c3e50" }
+                  }),
+                  div({ 
+                    text: () => {
+                      // Calculate WGM for Organic UI memory
+                      let organicWeightedLogSum = 0
+                      let totalWeight = 0
+                      
+                      for (const result of results()) {
+                        const weight = benchmarkWeights[result.name] || 0.2
+                        const mem = result.organicMemory <= 0 ? EPSILON : result.organicMemory
+                        organicWeightedLogSum += weight * Math.log(mem)
+                        totalWeight += weight
+                      }
+                      
+                      const organicWGM = Math.exp(organicWeightedLogSum / totalWeight)
+                      return formatNumber(organicWGM)
+                    },
+                    style: { color: "#2c3e50" }
+                  }),
+                  div({ 
+                    text: "-",
+                    style: { color: "#999" }
+                  }),
                   div({ text: "" })
                 ]
               }),
               div({
                 style: () => ({
                   display: results().length === benchmarks.length ? "grid" : "none",
-                  gridTemplateColumns: "2fr 1fr 1fr 1fr 100px",
+                  gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr 1fr 1fr 100px",
                   gap: "10px",
                   padding: "15px",
                   borderTop: "1px solid #dee2e6",
@@ -866,6 +968,109 @@ export function Benchmarks() {
                         fontWeight: "700",
                         fontSize: "16px",
                         color: getRatioColor(score)
+                      }
+                    }
+                  }),
+                  div({ 
+                    text: "1.00x",
+                    style: { color: "#28a745", fontWeight: "700" }
+                  }),
+                  div({ 
+                    text: () => {
+                      // Calculate memory WGM ratio
+                      let organicWeightedLogSum = 0
+                      let vanillaWeightedLogSum = 0
+                      let totalWeight = 0
+                      
+                      for (const result of results()) {
+                        const weight = benchmarkWeights[result.name] || 0.2
+                        const organicMem = result.organicMemory <= 0 ? EPSILON : result.organicMemory
+                        const vanillaMem = result.vanillaMemory <= 0 ? EPSILON : result.vanillaMemory
+                        
+                        organicWeightedLogSum += weight * Math.log(organicMem)
+                        vanillaWeightedLogSum += weight * Math.log(vanillaMem)
+                        totalWeight += weight
+                      }
+                      
+                      const organicWGM = Math.exp(organicWeightedLogSum / totalWeight)
+                      const vanillaWGM = Math.exp(vanillaWeightedLogSum / totalWeight)
+                      const ratio = organicWGM / vanillaWGM
+                      
+                      return formatRatio(ratio)
+                    },
+                    style: () => {
+                      // Calculate memory WGM ratio for color
+                      let organicWeightedLogSum = 0
+                      let vanillaWeightedLogSum = 0
+                      let totalWeight = 0
+                      
+                      for (const result of results()) {
+                        const weight = benchmarkWeights[result.name] || 0.2
+                        const organicMem = result.organicMemory <= 0 ? EPSILON : result.organicMemory
+                        const vanillaMem = result.vanillaMemory <= 0 ? EPSILON : result.vanillaMemory
+                        
+                        organicWeightedLogSum += weight * Math.log(organicMem)
+                        vanillaWeightedLogSum += weight * Math.log(vanillaMem)
+                        totalWeight += weight
+                      }
+                      
+                      const organicWGM = Math.exp(organicWeightedLogSum / totalWeight)
+                      const vanillaWGM = Math.exp(vanillaWeightedLogSum / totalWeight)
+                      const ratio = organicWGM / vanillaWGM
+                      
+                      return {
+                        fontWeight: "700",
+                        color: getRatioColor(ratio)
+                      }
+                    }
+                  }),
+                  div({ 
+                    text: () => {
+                      // Calculate memory WGM ratio
+                      let organicWeightedLogSum = 0
+                      let vanillaWeightedLogSum = 0
+                      let totalWeight = 0
+                      
+                      for (const result of results()) {
+                        const weight = benchmarkWeights[result.name] || 0.2
+                        const organicMem = result.organicMemory <= 0 ? EPSILON : result.organicMemory
+                        const vanillaMem = result.vanillaMemory <= 0 ? EPSILON : result.vanillaMemory
+                        
+                        organicWeightedLogSum += weight * Math.log(organicMem)
+                        vanillaWeightedLogSum += weight * Math.log(vanillaMem)
+                        totalWeight += weight
+                      }
+                      
+                      const organicWGM = Math.exp(organicWeightedLogSum / totalWeight)
+                      const vanillaWGM = Math.exp(vanillaWeightedLogSum / totalWeight)
+                      const ratio = organicWGM / vanillaWGM
+                      
+                      return formatRatio(ratio)
+                    },
+                    style: () => {
+                      // Calculate memory WGM ratio for color
+                      let organicWeightedLogSum = 0
+                      let vanillaWeightedLogSum = 0
+                      let totalWeight = 0
+                      
+                      for (const result of results()) {
+                        const weight = benchmarkWeights[result.name] || 0.2
+                        const organicMem = result.organicMemory <= 0 ? EPSILON : result.organicMemory
+                        const vanillaMem = result.vanillaMemory <= 0 ? EPSILON : result.vanillaMemory
+                        
+                        organicWeightedLogSum += weight * Math.log(organicMem)
+                        vanillaWeightedLogSum += weight * Math.log(vanillaMem)
+                        totalWeight += weight
+                      }
+                      
+                      const organicWGM = Math.exp(organicWeightedLogSum / totalWeight)
+                      const vanillaWGM = Math.exp(vanillaWeightedLogSum / totalWeight)
+                      const ratio = organicWGM / vanillaWGM
+                      
+                      return {
+                        fontWeight: "700",
+                        fontSize: "16px",
+                        color: getRatioColor(ratio)
                       }
                     }
                   }),

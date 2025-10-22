@@ -21,7 +21,7 @@ function createTocItem(text: string, id: string, section: string, onClick: (sect
   return a({ 
     href: `#${section}/${id}`,
     text,
-    className: "toc-item",
+    class: "block mb-1.5 no-underline cursor-pointer transition-all duration-150 px-2 py-1 rounded text-xs leading-relaxed text-slate-600 hover:text-blue-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:text-blue-400 dark:hover:bg-slate-900",
     onClick: (e) => {
       e.preventDefault()
       onClick(section, id)
@@ -48,14 +48,14 @@ export function TableOfContents({ activeSection, onItemClick }: TableOfContentsP
   return Show({
     when: () => tocItems().length > 0,
     children: div({
-      className: "toc",
+      class: "shrink-0 sticky overflow-y-auto text-sm w-[200px] self-start h-fit top-[calc(56px+1.5rem)] max-h-[calc(100dvh-56px-2rem)] max-[1024px]:hidden max-[768px]:static max-[768px]:-order-1 max-[768px]:mb-4 max-[768px]:pb-3 max-[768px]:border-b max-[768px]:max-h-none max-[768px]:border-slate-200 dark:max-[768px]:border-slate-800",
       children: [
         div({
           text: "On this page",
-          className: "toc-title"
+          class: "font-semibold mb-3 text-xs uppercase tracking-wide text-slate-700 dark:text-slate-300"
         }),
         div({
-          className: "toc-list",
+          class: "space-y-0.5",
           children: [
             For({
               each: tocItems,

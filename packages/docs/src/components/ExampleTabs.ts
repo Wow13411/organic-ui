@@ -41,12 +41,12 @@ export function ExampleTabs({ preview, code }: ExampleTabsProps) {
         },
         children: [
           button({
-            text: () => "Preview",
+            text: "Preview",
             onClick: () => setActiveTab("preview"),
             style: () => tabButtonStyle(activeTab() === "preview")
           }),
           button({
-            text: () => "Code",
+            text: "Code",
             onClick: () => setActiveTab("code"),
             style: () => tabButtonStyle(activeTab() === "code")
           })

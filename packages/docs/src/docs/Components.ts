@@ -1,6 +1,6 @@
 import { div, p } from "organic-ui/components"
+import { Button, Input, Label, Card, Badge, Textarea, Checkbox, Radio, Switch, Tabs, Alert, Dialog, Collapsible } from "organic-components"
 import { CodeViewer } from "../components/CodeViewer.js"
-import "./docs.css"
 
 export function Components() {
 
@@ -8,232 +8,367 @@ export function Components() {
     children: [
       div({
         text: "Components",
-        className: "docs-page-title"
+        class: "docs-page-title"
+      }),
+      p({
+        text: "Pre-built UI components styled with Tailwind CSS for common use cases.",
+        class: "docs-text"
       }),
       div({
-        id: "for",
-        text: "For - List Rendering",
-        className: "docs-section-title"
+        text: "Button",
+        class: "docs-subsection-title"
       }),
       p({
-        text: () => "Render dynamic lists that automatically update when the array changes.",
-        className: "docs-text"
-      }),
-      CodeViewer({
-        code: `const [items, setItems] = state(["A", "B", "C"])
-
-For({
-  each: items,
-  children: (item, index) => div({
-    text: \`Item \${index}: \${item}\`
-  })
-})`,
-        language: "typescript"
-      }),
-      p({
-        text: () => "Use the key prop for efficient reconciliation when items can be reordered:",
-        className: "docs-text"
-      }),
-      CodeViewer({
-        code: `const [todos, setTodos] = state([
-  { id: 1, text: "Learn Organic UI" },
-  { id: 2, text: "Build an app" }
-])
-
-For({
-  each: todos,
-  key: (todo) => todo.id,  // Reuse DOM nodes when IDs match
-  children: (todo) => div({
-    text: () => todo.text
-  })
-})`,
-        language: "typescript"
-      }),
-      p({
-        text: () => "Use the fallback prop to show content when the list is empty:",
-        className: "docs-text"
-      }),
-      CodeViewer({
-        code: `For({
-  each: items,
-  children: (item) => div({ text: item }),
-  fallback: div({
-    text: "No items to display",
-    style: { color: "#999", fontStyle: "italic" }
-  })
-})`,
-        language: "typescript"
+        text: "A customizable button component with variants and sizes.",
+        class: "docs-text"
       }),
       div({
-        id: "show",
-        text: "Show - Conditional Rendering",
-        className: "docs-section-title"
-      }),
-      p({
-        text: () => "Conditionally render components with optional fallback.",
-        className: "docs-text"
+        class: "docs-example",
+        style: { 
+          padding: "20px", 
+          border: "1px solid #e2e8f0", 
+          borderRadius: "8px", 
+          marginBottom: "16px",
+          display: "flex",
+          gap: "12px",
+          flexWrap: "wrap"
+        },
+        children: [
+          Button({
+            variant: "default",
+            children: "Default"
+          }),
+          Button({
+            variant: "secondary",
+            children: "Secondary"
+          }),
+          Button({
+            variant: "outline",
+            children: "Outline"
+          }),
+          Button({
+            variant: "ghost",
+            children: "Ghost"
+          }),
+          Button({
+            variant: "destructive",
+            children: "Destructive"
+          })
+        ]
       }),
       CodeViewer({
-        code: `const [isLoggedIn, setIsLoggedIn] = state(false)
+        code: `import { Button } from "organic-components"
 
-Show({
-  when: isLoggedIn,
-  children: div({ text: "Welcome back!" }),
-  fallback: div({ text: "Please log in" })
+Button({
+  variant: "default",
+  size: "default",
+  children: "Click me",
+  onClick: () => console.log("clicked")
 })`,
         language: "typescript"
       }),
       div({
-        id: "switch",
-        text: "Switch - Pattern Matching",
-        className: "docs-section-title"
+        text: "Input",
+        class: "docs-subsection-title"
       }),
       p({
-        text: () => "Match a value against multiple cases, rendering the first match. Cleaner alternative to Show-when ladders.",
-        className: "docs-text"
+        text: "A styled input field.",
+        class: "docs-text"
+      }),
+      div({
+        class: "docs-example",
+        style: { 
+          padding: "20px", 
+          border: "1px solid #e2e8f0", 
+          borderRadius: "8px", 
+          marginBottom: "16px"
+        },
+        children: [
+          div({
+            style: { maxWidth: "300px" },
+            children: [Input({
+              placeholder: "Enter your name..."
+            })]
+          })
+        ]
       }),
       CodeViewer({
-        code: `const [status, setStatus] = state("loading")
+        code: `import { Input } from "organic-components"
+
+Input({
+  placeholder: "Enter text",
+  onInput: (value) => console.log(value)
+})`,
+        language: "typescript"
+      }),
+      div({
+        text: "Card",
+        class: "docs-subsection-title"
+      }),
+      p({
+        text: "A card component with header, title, description, content, and footer.",
+        class: "docs-text"
+      }),
+      div({
+        class: "docs-example",
+        style: { 
+          padding: "20px", 
+          border: "1px solid #e2e8f0", 
+          borderRadius: "8px", 
+          marginBottom: "16px"
+        },
+        children: [
+          div({
+            style: { maxWidth: "400px" },
+            children: [Card.Root({
+              children: [
+                Card.Header({
+                  children: [
+                    Card.Title({ children: "Example Card" }),
+                    Card.Description({ children: "This is a card description" })
+                  ]
+                }),
+                Card.Content({
+                  children: "This is the card content area where you can put any content."
+                }),
+                Card.Footer({
+                  children: "Card footer"
+                })
+              ]
+            })]
+          })
+        ]
+      }),
+      CodeViewer({
+        code: `import { Card } from "organic-components"
+
+Card.Root({
+  children: [
+    Card.Header({
+      children: [
+        Card.Title({ children: "Card Title" }),
+        Card.Description({ children: "Card description" })
+      ]
+    }),
+    Card.Content({
+      children: "Card content"
+    }),
+    Card.Footer({
+      children: "Card footer"
+    })
+  ]
+})`,
+        language: "typescript"
+      }),
+      div({
+        text: "Textarea",
+        class: "docs-subsection-title"
+      }),
+      p({
+        text: "A multi-line text input component.",
+        class: "docs-text"
+      }),
+      div({
+        class: "docs-example",
+        style: { 
+          padding: "20px", 
+          border: "1px solid #e2e8f0", 
+          borderRadius: "8px", 
+          marginBottom: "16px"
+        },
+        children: [
+          div({
+            style: { maxWidth: "400px" },
+            children: [Textarea({
+              placeholder: "Enter your message here...",
+              rows: 4
+            })]
+          })
+        ]
+      }),
+      CodeViewer({
+        code: `import { Textarea } from "organic-components"
+
+Textarea({
+  placeholder: "Enter your message",
+  rows: 4,
+  onInput: (value) => console.log(value)
+})`,
+        language: "typescript"
+      }),
+      div({
+        text: "Checkbox",
+        class: "docs-subsection-title"
+      }),
+      p({
+        text: "A checkbox input component.",
+        class: "docs-text"
+      }),
+      div({
+        class: "docs-example",
+        style: { 
+          padding: "20px", 
+          border: "1px solid #e2e8f0", 
+          borderRadius: "8px", 
+          marginBottom: "16px",
+          display: "flex",
+          gap: "12px",
+          alignItems: "center"
+        },
+        children: [
+          Checkbox({
+            checked: false
+          }),
+          Label({ children: "Accept terms and conditions" })
+        ]
+      }),
+      CodeViewer({
+        code: `import { Checkbox } from "organic-components"
+
+Checkbox({
+  checked: false,
+  onChange: (checked) => console.log(checked)
+})`,
+        language: "typescript"
+      }),
+      div({
+        text: "Radio",
+        class: "docs-subsection-title"
+      }),
+      p({
+        text: "A radio input component.",
+        class: "docs-text"
+      }),
+      CodeViewer({
+        code: `import { Radio } from "organic-components"
+
+Radio({
+  name: "option",
+  value: "1",
+  checked: false,
+  onChange: (checked) => console.log(checked)
+})`,
+        language: "typescript"
+      }),
+      div({
+        text: "Switch",
+        class: "docs-subsection-title"
+      }),
+      p({
+        text: "A toggle switch component.",
+        class: "docs-text"
+      }),
+      CodeViewer({
+        code: `import { Switch } from "organic-components"
 
 Switch({
-  on: status,
-  cases: [
-    { when: "loading", children: div({ text: "Loading..." }) },
-    { when: "success", children: div({ text: "Data loaded!" }) },
-    { when: "error", children: div({ text: "Error occurred" }) }
-  ],
-  fallback: div({ text: "Unknown status" })
-})`,
-        language: "typescript"
-      }),
-      p({
-        text: () => "Custom matcher for complex comparisons:",
-        className: "docs-text"
-      }),
-      CodeViewer({
-        code: `const [score, setScore] = state(85)
-
-Switch({
-  on: score,
-  matcher: (score, range) => score >= range.min && score <= range.max,
-  cases: [
-    { when: { min: 90, max: 100 }, children: div({ text: "Grade: A" }) },
-    { when: { min: 80, max: 89 }, children: div({ text: "Grade: B" }) },
-    { when: { min: 70, max: 79 }, children: div({ text: "Grade: C" }) }
-  ],
-  fallback: div({ text: "Grade: F" })
+  checked: false,
+  onCheckedChange: (checked) => console.log(checked)
 })`,
         language: "typescript"
       }),
       div({
-        id: "html",
-        text: "html - Raw HTML Rendering",
-        className: "docs-section-title"
+        text: "Tabs",
+        class: "docs-subsection-title"
       }),
       p({
-        text: () => "Render raw HTML content using tagged template literals. Supports both static and dynamic (reactive) content.",
-        className: "docs-text"
+        text: "A tabs component for navigation.",
+        class: "docs-text"
       }),
       CodeViewer({
-        code: `// Static HTML
-html\`<p>This is <strong>raw</strong> HTML content</p>\`
+        code: `import { Tabs } from "organic-components"
 
-// Dynamic HTML with reactive state
-const [name, setName] = state("Alice")
-html\`<p>Hello <strong>\${name}</strong>!</p>\`
-
-// Complex HTML with multiple dynamic values
-const [count, setCount] = state(0)
-html\`
-  <div class="counter">
-    <h2>Count: \${count}</h2>
-    <p>Double: \${() => count() * 2}</p>
-  </div>
-\``,
-        language: "typescript"
-      }),
-      p({
-        text: () => "⚠️ Note: Be careful with user-generated content to avoid XSS vulnerabilities. Always sanitize untrusted input.",
-        className: "docs-warning",
-        style: { margin: "15px 0" }
-      }),
-      div({
-        id: "html-elements",
-        text: "HTML Elements",
-        className: "docs-section-title"
-      }),
-      p({
-        text: () => "Common HTML elements: div, button, p, a, ul, li",
-        className: "docs-text"
-      }),
-      CodeViewer({
-        code: `div({ 
-  text: "Hello",
-  style: { color: "blue" },
-  className: "container",
-  onClick: () => console.log("clicked"),
-  children: [...]
-})
-
-a({
-  href: "/about",
-  text: "About",
-  onClick: (e) => {
-    e.preventDefault()
-    router.navigate("/about")
-  }
+Tabs.Root({
+  children: [
+    Tabs.List({
+      children: [
+        Tabs.Trigger({ children: "Tab 1", active: true }),
+        Tabs.Trigger({ children: "Tab 2" })
+      ]
+    }),
+    Tabs.Content({ children: "Content for Tab 1", active: true }),
+    Tabs.Content({ children: "Content for Tab 2" })
+  ]
 })`,
         language: "typescript"
       }),
       div({
-        id: "ref",
-        text: "ref - DOM Element Access",
-        className: "docs-section-title"
+        text: "Alert",
+        class: "docs-subsection-title"
       }),
       p({
-        text: () => "Access the underlying DOM element after it's mounted. The ref callback receives the element and can optionally return a cleanup function.",
-        className: "docs-text"
+        text: "An alert component for displaying messages.",
+        class: "docs-text"
       }),
       CodeViewer({
-        code: `// Basic usage - access element after mount
-div({
-  text: "Hello",
-  ref: (el) => {
-    console.log("Element mounted:", el)
-    el.focus()
-  }
-})
+        code: `import { Alert } from "organic-components"
 
-// With cleanup - return a function to run on unmount
-div({
-  text: "Animated",
-  ref: (el) => {
-    // Setup: add animation
-    const animation = el.animate([
-      { opacity: 0 },
-      { opacity: 1 }
-    ], { duration: 500 })
-    
-    // Cleanup: cancel animation on unmount
-    return () => {
-      animation.cancel()
-    }
-  }
-})
-
-// Real-world example: syntax highlighting
-div({
-  text: code,
-  ref: (el) => {
-    const cleanup = applySyntaxHighlighting(el, code)
-    return cleanup
-  }
+Alert.Root({
+  variant: "default",
+  children: [
+    Alert.Title({ children: "Alert Title" }),
+    Alert.Description({ children: "This is an alert message." })
+  ]
 })`,
         language: "typescript"
       }),
+      div({
+        text: "Dialog",
+        class: "docs-subsection-title"
+      }),
       p({
-        text: () => "The ref callback is called after the element is added to the DOM, ensuring you can safely interact with it. The cleanup function (if returned) is called when the component unmounts.",
-        className: "docs-text"
+        text: "A modal dialog component.",
+        class: "docs-text"
+      }),
+      CodeViewer({
+        code: `import { Dialog } from "organic-components"
+
+Dialog.Root({
+  open: true,
+  children: [
+    Dialog.Header({
+      children: [
+        Dialog.Title({ children: "Dialog Title" }),
+        Dialog.Description({ children: "Dialog description" })
+      ]
+    }),
+    Dialog.Content({
+      children: "Dialog content"
+    }),
+    Dialog.Footer({
+      children: [
+        Dialog.Close({ children: "Close", onClick: () => setOpen(false) })
+      ]
+    })
+  ]
+})`,
+        language: "typescript"
+      }),
+      div({
+        text: "Collapsible",
+        class: "docs-subsection-title"
+      }),
+      p({
+        text: "A collapsible content component.",
+        class: "docs-text"
+      }),
+      CodeViewer({
+        code: `import { Collapsible } from "organic-components"
+
+Collapsible.Root({
+  open: true,
+  children: [
+    Collapsible.Trigger({
+      children: "Toggle",
+      onClick: () => setOpen(!open)
+    }),
+    Collapsible.Content({
+      children: "Collapsible content",
+      open: true
+    })
+  ]
+})`,
+        language: "typescript"
       })
     ]
   })
