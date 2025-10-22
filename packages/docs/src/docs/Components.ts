@@ -1,5 +1,5 @@
 import { div, p } from "organic-ui/components"
-import { Button, Input, Label, Card, Badge, Textarea, Checkbox, Radio, Switch, Tabs, Alert, Dialog, Collapsible } from "organic-components"
+import { Button, Input, Card, Label, Textarea, Checkbox } from "organic-components"
 import { CodeViewer } from "../components/CodeViewer.js"
 
 export function Components() {

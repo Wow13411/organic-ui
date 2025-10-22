@@ -1,4 +1,4 @@
-import { cva, type VariantProps } from "cva"
+import { cva } from "cva"
 import { div, button } from "organic-ui/components"
 import { cn } from "../lib/utils.js"
 
